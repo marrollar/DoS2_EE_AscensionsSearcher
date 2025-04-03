@@ -1,12 +1,24 @@
 from bs4 import BeautifulSoup
 import sqlite3
 import os
+import shutil
 
-ee_core_root = (
+EE_CORE_ROOT = (
     "../EE2_raw_src/Core/Mods/Epic_Encounters_Core_63bb9b65-2964-4c10-be5b-55a63ec02fa0"
 )
+DERPY_ROOT = "../EE2_raw_src/Derpy's/Mods/Derpy's EE2 tweaks"
+DB_NAME = "ascensions.db"
+ORM_DIR = "../client/prisma"
 
-conn = sqlite3.connect("ascensions.db")
+if not os.path.isdir(EE_CORE_ROOT):
+    raise ("ERROR: Path to folder containing unpacking of EE Core was not found.")
+if not os.path.isdir(DERPY_ROOT):
+    raise ("ERROR: Path to foldering containg unpacking of Derpy's mod was not found.")
+if not os.path.isdir(ORM_DIR):
+    raise ("ERROR: The website's ORM folder was not found.")
+
+
+conn = sqlite3.connect(DB_NAME)
 cur = conn.cursor()
 
 
@@ -16,7 +28,7 @@ def parse_for_descriptions():
     There are unused and duplicate descriptions which are not handled in this function; they are handled later.
     """
 
-    file = os.path.join(ee_core_root, "Localization/AMER_UI_Ascension.lsx")
+    file = os.path.join(EE_CORE_ROOT, "Localization/AMER_UI_Ascension.lsx")
 
     ascension_prefixes = [
         "AMER_UI_Ascension_Force_",
@@ -30,12 +42,14 @@ def parse_for_descriptions():
     cur.execute(
         """
         CREATE TABLE core (
-            href TEXT PRIMARY KEY,
-            ascension TEXT,
-            aspect TEXT,
-            attr TEXT,
-            description TEXT,
-            is_subnode INTEGER
+            href TEXT NOT NULL,
+            aspect TEXT NOT NULL,
+            cluster TEXT NOT NULL,
+            attr TEXT NOT NULL,
+            description TEXT NOT NULL,
+            is_subnode INTEGER,
+
+            PRIMARY KEY (aspect, cluster, attr)
         )
         """
     )
@@ -54,7 +68,7 @@ def parse_for_descriptions():
         </node>
 
         The description is extracted from Content.
-        The ascension, aspect and node is extracted from UUID.
+        The aspect, cluster and node is extracted from UUID.
         """
 
         soup = BeautifulSoup(f.read(), "lxml")
@@ -70,24 +84,28 @@ def parse_for_descriptions():
             if any(uuid.startswith(prefix) for prefix in ascension_prefixes):
                 uuid_tokens = uuid.split("_")
 
-                ascension_name = uuid_tokens[3]
+                # There are some weird nodes in the localization formatted, for example, AMER_UI_Ascension_Force_TheFalcon_Node_Node_0.0
+                if len(uuid_tokens) != 7:
+                    continue
 
-                aspect_name = uuid_tokens[4]
-                if aspect_name.startswith("The"):
-                    aspect_name = "The " + aspect_name[3:]
+                aspect = uuid_tokens[3]
+
+                cluster = uuid_tokens[4]
+                if cluster.startswith("The"):
+                    cluster = "The " + cluster[3:]
                 ascension_attr = uuid_tokens[5]
                 ascension_node = ""
 
                 if ascension_attr.startswith("Node"):
                     ascension_node = uuid_tokens[6]
 
-                # print(aspect_name, "\n", ascension_attr, ascension_node, "\n\n")
+                # print(cluster, "\n", ascension_attr, ascension_node, "\n\n")
                 cur.execute(
-                    "INSERT INTO core (href, ascension, aspect, attr, description, is_subnode) VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO core (href, aspect, cluster, attr, description, is_subnode) VALUES (?, ?, ?, ?, ?, ?)",
                     (
                         content_href.strip(),
-                        ascension_name.strip(),
-                        aspect_name.strip(),
+                        aspect.strip(),
+                        cluster.strip(),
                         (ascension_attr + ascension_node).strip(),
                         content_text.strip(),
                         1 if "." in ascension_node else 0,
@@ -107,7 +125,7 @@ def parse_for_corrections():
     """
 
     file = os.path.join(
-        ee_core_root,
+        EE_CORE_ROOT,
         "Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt",
     )
 
@@ -123,10 +141,11 @@ def parse_for_corrections():
     cur.execute(
         """
         CREATE TABLE node_rewards (
-            ascension TEXT,
-            aspect TEXT,
-            node TEXT,
-            PRIMARY KEY (ascension, node)
+            aspect TEXT NOT NULL,
+            cluster TEXT NOT NULL,
+            node TEXT NOT NULL,
+
+            PRIMARY KEY (aspect, cluster, node)
         )
         """
     )
@@ -143,50 +162,58 @@ def parse_for_corrections():
                 """ The tokens are in the form [uuid_prefix, ascension_uuid, from_node, to_node] """
                 tokens = line[line.index("(") + 1 : -3].split(",")
 
-                ascension_name = tokens[1].split("_")[0].replace('"', "")
+                aspect = tokens[1].split("_")[0].replace('"', "")
 
-                aspect_name = tokens[1].split("_")[1].replace('"', "")
-                if aspect_name.startswith("The"):
-                    aspect_name = "The " + aspect_name[3:]
+                cluster = tokens[1].split("_")[1].replace('"', "")
+                if cluster.startswith("The"):
+                    cluster = "The " + cluster[3:]
 
                 from_node = "".join(tokens[2].split("_")).replace('"', "")
                 to_node = "".join(tokens[3].split("_")).replace('"', "")
 
-                # print(aspect_name, from_node, to_node)
+                # print(cluster, from_node, to_node)
                 cur.executemany(
                     """
-                    INSERT OR IGNORE INTO node_rewards (ascension, aspect, node) VALUES (?, ?, ?)
+                    INSERT OR IGNORE INTO node_rewards (aspect, cluster, node) VALUES (?, ?, ?)
                     """,
                     [
-                        (ascension_name.strip(), aspect_name.strip(), from_node.strip()),
-                        (ascension_name.strip(), aspect_name.strip(), to_node.strip()),
+                        (
+                            aspect.strip(),
+                            cluster.strip(),
+                            from_node.strip(),
+                        ),
+                        (aspect.strip(), cluster.strip(), to_node.strip()),
                     ],
                 )
                 conn.commit()
 
             elif any(line.startswith(prefix) for prefix in sub_node_prefixes):
                 """
-                Check if the line is one that is changing character properties, IE giving them stats and ascension effects.
-                This is what we use for ground truth for sub node descriptions
+                Check if the line is one that is giving a character stats or ascension effects.
+                These lines are what we use for ground truth for node descriptions.
                 """
 
                 """ The tokens are in the form [ascension_uuid, node, ...] """
                 tokens = line[line.index("(") + 1 : -3].split(",")
 
-                ascension_name = tokens[0].split("_")[0].replace('"', "")
+                aspect = tokens[0].split("_")[0].replace('"', "")
 
-                aspect_name = tokens[0].split("_")[1].replace('"', "")
-                if aspect_name.startswith("The"):
-                    aspect_name = "The " + aspect_name[3:]
+                cluster = tokens[0].split("_")[1].replace('"', "")
+                if cluster.startswith("The"):
+                    cluster = "The " + cluster[3:]
 
                 node_uuid_used = "".join(tokens[1].split("_")).replace('"', "")
 
-                # print(aspect_name, node_uuid_used)
+                # print(cluster, node_uuid_used)
                 cur.execute(
                     """
-                    INSERT OR IGNORE INTO node_rewards (ascension, aspect, node) VALUES (?, ?, ?)
+                    INSERT OR IGNORE INTO node_rewards (aspect, cluster, node) VALUES (?, ?, ?)
                     """,
-                    (ascension_name.strip(), aspect_name.strip(), node_uuid_used.strip()),
+                    (
+                        aspect.strip(),
+                        cluster.strip(),
+                        node_uuid_used.strip(),
+                    ),
                 )
                 conn.commit()
 
@@ -201,23 +228,23 @@ def create_final_table():
 
     cur.execute(
         """
-        CREATE TABLE nodes AS
+        CREATE TEMP TABLE tmp_nodes AS
             WITH
             node_descs AS (
                 SELECT
-                    c.ascension AS ascension,
-                    nr.aspect AS aspect, 
+                    c.aspect AS aspect,
+                    nr.cluster AS cluster, 
                     c.attr AS attr, 
                     c.description AS description,
                     c.is_subnode as is_subnode
                 FROM node_rewards AS nr
                 JOIN core AS c
-                ON nr.aspect=c.aspect AND nr.node=c.attr
+                ON nr.cluster=c.cluster AND nr.node=c.attr
             ),
             asc_meta AS (
                 SELECT
-                    ascension,
                     aspect,
+                    cluster,
                     attr,
                     description,
                     NULL
@@ -231,6 +258,24 @@ def create_final_table():
     )
     conn.commit()
 
+    cur.execute(
+        """
+        CREATE TABLE nodes (
+            aspect TEXT NOT NULL,
+            cluster TEXT NOT NULL,
+            attr TEXT NOT NULL,
+            description TEXT NOT NULL,
+            is_subnode INTEGER,
+
+            PRIMARY KEY (aspect, cluster, attr)
+        )
+        """
+    )
+    conn.commit()
+
+    cur.execute("INSERT INTO nodes SELECT * FROM tmp_nodes")
+    conn.commit()
+
 
 print("Creating final ground truth table")
 create_final_table()
@@ -240,8 +285,7 @@ def parse_derpys_changes():
     """
     Parses Derpy's/Mods/Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua to extract out the changes from Derpy's mod.
     """
-    derpy_root = "../EE2_raw_src/Derpy's/Mods/Derpy's EE2 tweaks"
-    file = os.path.join(derpy_root, "Story/RawFiles/Lua/PipsFancyUIStuff.lua")
+    file = os.path.join(DERPY_ROOT, "Story/RawFiles/Lua/PipsFancyUIStuff.lua")
 
     prefixes = ["StatsTab.AddNodeStat", "StatsTab.STATS"]
 
@@ -250,10 +294,12 @@ def parse_derpys_changes():
     cur.execute(
         """
         CREATE TABLE derpys (
-            ascension TEXT,
-            aspect TEXT,
-            node TEXT,
-            description TEXT
+            aspect TEXT NOT NULL,
+            cluster TEXT NOT NULL,
+            node TEXT NOT NULL,
+            description TEXT NOT NULL,
+
+            PRIMARY KEY (aspect, cluster, node)
         )
         """
     )
@@ -273,7 +319,7 @@ def parse_derpys_changes():
 
                 """
                 We grab pertinent information from the current line;
-                it should be all of the meta information about the modification such as the ascension it belongs to and the node its adding/modifying.
+                it should be all of the meta information about the modification such as the aspect it belongs to and the node its adding/modifying.
                 """
                 tokens = (
                     (
@@ -287,16 +333,16 @@ def parse_derpys_changes():
                     .split(",")
                 )
 
-                ascension_name = tokens[0].split("_")[0]
+                aspect = tokens[0].split("_")[0]
 
-                aspect_name = tokens[0].split("_")[1]
-                if aspect_name.startswith("The"):
-                    aspect_name = "The " + aspect_name[3:]
+                cluster = tokens[0].split("_")[1]
+                if cluster.startswith("The"):
+                    cluster = "The " + cluster[3:]
 
                 main_node = tokens[1].strip()
                 sub_node = tokens[2].strip()
 
-                # print(aspect_name, main_node, sub_node)
+                # print(cluster, main_node, sub_node)
                 PARSE_STATE = STATE_PARSING_ADDITIONS
 
             elif PARSE_STATE == STATE_PARSING_ADDITIONS:
@@ -313,11 +359,11 @@ def parse_derpys_changes():
                     # Scuse the writing-proper-code abuse
                     cur.execute(
                         """
-                        INSERT INTO derpys (ascension, aspect, node, description) VALUES (?, ?, ?, ?)
+                        INSERT INTO derpys (aspect, cluster, node, description) VALUES (?, ?, ?, ?)
                         """,
                         (
-                            ascension_name.strip(),
-                            aspect_name.strip(),
+                            aspect.strip(),
+                            cluster.strip(),
                             "Node" + main_node + "." + sub_node,
                             description.strip(),
                         ),
@@ -342,25 +388,28 @@ def parse_derpys_changes():
 
                     ascenion_name = tokens[0]
 
-                    aspect_name = tokens[1]
-                    if aspect_name.startswith("The"):
-                        aspect_name = "The " + aspect_name[3:]
+                    cluster = tokens[1]
+                    if cluster.startswith("The"):
+                        cluster = "The " + cluster[3:]
                     node = tokens[2] + tokens[3]
 
                     cur.execute(
                         """
-                        INSERT INTO derpys (ascension, aspect, node, description) VALUES (?, ?, ?, ?)
+                        INSERT INTO derpys (aspect, cluster, node, description) VALUES (?, ?, ?, ?)
                         """,
                         (
                             ascenion_name.strip(),
-                            aspect_name.strip(),
+                            cluster.strip(),
                             node.strip(),
                             description.strip(),
                         ),
                     )
                     conn.commit()
 
+
 print("Parsing for Derpy's changes")
 parse_derpys_changes()
 
 conn.close()
+
+shutil.move(DB_NAME, os.path.join(ORM_DIR, DB_NAME))
