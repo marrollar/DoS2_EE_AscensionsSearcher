@@ -83,10 +83,6 @@ def parse_for_descriptions():
             if any(uuid.startswith(prefix) for prefix in ascension_prefixes):
                 uuid_tokens = uuid.split("_")
 
-                # There are some weird nodes in the localization formatted, for example, AMER_UI_Ascension_Force_TheFalcon_Node_Node_0.0
-                if len(uuid_tokens) != 7:
-                    continue
-
                 aspect = uuid_tokens[3]
 
                 cluster = uuid_tokens[4]
@@ -96,7 +92,11 @@ def parse_for_descriptions():
                 ascension_node = ""
 
                 if ascension_attr.startswith("Node"):
-                    ascension_node = uuid_tokens[6]
+                    # There are some weird nodes in the localization formatted, for example, AMER_UI_Ascension_Force_TheFalcon_Node_Node_0.0
+                    if len(uuid_tokens) > 7 and "Node" in uuid_tokens[6]:
+                        continue
+                    else:
+                        ascension_node = " " + uuid_tokens[6]
 
                 # print(cluster, "\n", ascension_attr, ascension_node, "\n\n")
                 cur.execute(
@@ -166,8 +166,8 @@ def parse_for_corrections():
                 if cluster.startswith("The"):
                     cluster = "The " + cluster[3:]
 
-                from_node = "".join(tokens[2].split("_")).replace('"', "")
-                to_node = "".join(tokens[3].split("_")).replace('"', "")
+                from_node = " ".join(tokens[2].split("_")).replace('"', "")
+                to_node = " ".join(tokens[3].split("_")).replace('"', "")
 
                 # print(cluster, from_node, to_node)
                 cur.executemany(
@@ -200,7 +200,7 @@ def parse_for_corrections():
                 if cluster.startswith("The"):
                     cluster = "The " + cluster[3:]
 
-                node_uuid_used = "".join(tokens[1].split("_")).replace('"', "")
+                node_uuid_used = " ".join(tokens[1].split("_")).replace('"', "")
 
                 # print(cluster, node_uuid_used)
                 cur.execute(
@@ -362,7 +362,7 @@ def parse_derpys_changes():
                         (
                             aspect.strip(),
                             cluster.strip(),
-                            "Node" + main_node + "." + sub_node,
+                            "Node " + main_node + "." + sub_node,
                             description.strip(),
                         ),
                     )
@@ -389,7 +389,7 @@ def parse_derpys_changes():
                     cluster = tokens[1]
                     if cluster.startswith("The"):
                         cluster = "The " + cluster[3:]
-                    node = tokens[2] + tokens[3]
+                    node = tokens[2] + " " + tokens[3]
 
                     cur.execute(
                         """
