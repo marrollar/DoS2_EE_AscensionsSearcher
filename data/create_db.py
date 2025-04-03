@@ -38,10 +38,9 @@ def parse_for_descriptions():
         "AMER_UI_Ascension_Life_",
     ]
 
-    cur.execute("DROP TABLE IF EXISTS core")
     cur.execute(
         """
-        CREATE TABLE core (
+        CREATE TEMP TABLE core (
             href TEXT NOT NULL,
             aspect TEXT NOT NULL,
             cluster TEXT NOT NULL,
@@ -137,10 +136,9 @@ def parse_for_corrections():
         "DB_AMER_UI_Ascension_Node_Reward_ExtendedStat",
     ]
 
-    cur.execute("DROP TABLE IF EXISTS node_rewards")
     cur.execute(
         """
-        CREATE TABLE node_rewards (
+        CREATE TEMP TABLE node_rewards (
             aspect TEXT NOT NULL,
             cluster TEXT NOT NULL,
             node TEXT NOT NULL,
