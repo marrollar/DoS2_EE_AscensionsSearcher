@@ -2,7 +2,9 @@ from bs4 import BeautifulSoup
 import sqlite3
 import os
 
-ee_core_root = "../EE2_raw_src/Core/Mods/Epic_Encounters_Core_63bb9b65-2964-4c10-be5b-55a63ec02fa0"
+ee_core_root = (
+    "../EE2_raw_src/Core/Mods/Epic_Encounters_Core_63bb9b65-2964-4c10-be5b-55a63ec02fa0"
+)
 
 conn = sqlite3.connect("ascensions.db")
 cur = conn.cursor()
@@ -29,7 +31,8 @@ def parse_for_descriptions():
         """
         CREATE TABLE core (
             href TEXT PRIMARY KEY,
-            asc_name TEXT,
+            ascension TEXT,
+            aspect TEXT,
             attr TEXT,
             description TEXT,
             is_subnode INTEGER
@@ -51,7 +54,7 @@ def parse_for_descriptions():
         </node>
 
         The description is extracted from Content.
-        The ascension and node the description is associated with is extracted from UUID.
+        The ascension, aspect and node is extracted from UUID.
         """
 
         soup = BeautifulSoup(f.read(), "lxml")
@@ -67,21 +70,24 @@ def parse_for_descriptions():
             if any(uuid.startswith(prefix) for prefix in ascension_prefixes):
                 uuid_tokens = uuid.split("_")
 
-                ascension_name = uuid_tokens[4]
-                if ascension_name.startswith("The"):
-                    ascension_name = "The " + ascension_name[3:]
+                ascension_name = uuid_tokens[3]
+
+                aspect_name = uuid_tokens[4]
+                if aspect_name.startswith("The"):
+                    aspect_name = "The " + aspect_name[3:]
                 ascension_attr = uuid_tokens[5]
                 ascension_node = ""
 
                 if ascension_attr.startswith("Node"):
                     ascension_node = uuid_tokens[6]
 
-                # print(ascension_name, "\n", ascension_attr, ascension_node, "\n\n")
+                # print(aspect_name, "\n", ascension_attr, ascension_node, "\n\n")
                 cur.execute(
-                    "INSERT INTO core (href, asc_name, attr, description, is_subnode) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO core (href, ascension, aspect, attr, description, is_subnode) VALUES (?, ?, ?, ?, ?, ?)",
                     (
                         content_href.strip(),
                         ascension_name.strip(),
+                        aspect_name.strip(),
                         (ascension_attr + ascension_node).strip(),
                         content_text.strip(),
                         1 if "." in ascension_node else 0,
@@ -91,7 +97,7 @@ def parse_for_descriptions():
 
 
 print("Parsing for descriptions")
-# parse_for_descriptions()
+parse_for_descriptions()
 
 
 def parse_for_corrections():
@@ -117,9 +123,10 @@ def parse_for_corrections():
     cur.execute(
         """
         CREATE TABLE node_rewards (
-            asc_name TEXT,
+            ascension TEXT,
+            aspect TEXT,
             node TEXT,
-            PRIMARY KEY (asc_name, node)
+            PRIMARY KEY (ascension, node)
         )
         """
     )
@@ -136,21 +143,23 @@ def parse_for_corrections():
                 """ The tokens are in the form [uuid_prefix, ascension_uuid, from_node, to_node] """
                 tokens = line[line.index("(") + 1 : -3].split(",")
 
-                ascension_name = tokens[1].split("_")[1].replace('"', "")
-                if ascension_name.startswith("The"):
-                    ascension_name = "The " + ascension_name[3:]
+                ascension_name = tokens[1].split("_")[0].replace('"', "")
+
+                aspect_name = tokens[1].split("_")[1].replace('"', "")
+                if aspect_name.startswith("The"):
+                    aspect_name = "The " + aspect_name[3:]
 
                 from_node = "".join(tokens[2].split("_")).replace('"', "")
                 to_node = "".join(tokens[3].split("_")).replace('"', "")
 
-                # print(ascension_name, from_node, to_node)
+                # print(aspect_name, from_node, to_node)
                 cur.executemany(
                     """
-                    INSERT OR IGNORE INTO node_rewards (asc_name, node) VALUES (?, ?)
+                    INSERT OR IGNORE INTO node_rewards (ascension, aspect, node) VALUES (?, ?, ?)
                     """,
                     [
-                        (ascension_name.strip(), from_node.strip()),
-                        (ascension_name.strip(), to_node.strip()),
+                        (ascension_name.strip(), aspect_name.strip(), from_node.strip()),
+                        (ascension_name.strip(), aspect_name.strip(), to_node.strip()),
                     ],
                 )
                 conn.commit()
@@ -164,24 +173,26 @@ def parse_for_corrections():
                 """ The tokens are in the form [ascension_uuid, node, ...] """
                 tokens = line[line.index("(") + 1 : -3].split(",")
 
-                ascension_name = tokens[0].split("_")[1].replace('"', "")
-                if ascension_name.startswith("The"):
-                    ascension_name = "The " + ascension_name[3:]
+                ascension_name = tokens[0].split("_")[0].replace('"', "")
+
+                aspect_name = tokens[0].split("_")[1].replace('"', "")
+                if aspect_name.startswith("The"):
+                    aspect_name = "The " + aspect_name[3:]
 
                 node_uuid_used = "".join(tokens[1].split("_")).replace('"', "")
 
-                # print(ascension_name, node_uuid_used)
+                # print(aspect_name, node_uuid_used)
                 cur.execute(
                     """
-                    INSERT OR IGNORE INTO node_rewards (asc_name, node) VALUES (?, ?)
+                    INSERT OR IGNORE INTO node_rewards (ascension, aspect, node) VALUES (?, ?, ?)
                     """,
-                    (ascension_name.strip(), node_uuid_used.strip()),
+                    (ascension_name.strip(), aspect_name.strip(), node_uuid_used.strip()),
                 )
                 conn.commit()
 
 
 print("Parsing for corrections")
-# parse_for_corrections()
+parse_for_corrections()
 
 
 def create_final_table():
@@ -194,17 +205,19 @@ def create_final_table():
             WITH
             node_descs AS (
                 SELECT
-                    nr.asc_name AS asc_name, 
+                    c.ascension AS ascension,
+                    nr.aspect AS aspect, 
                     c.attr AS attr, 
                     c.description AS description,
                     c.is_subnode as is_subnode
                 FROM node_rewards AS nr
                 JOIN core AS c
-                ON nr.asc_name=c.asc_name AND nr.node=c.attr
+                ON nr.aspect=c.aspect AND nr.node=c.attr
             ),
             asc_meta AS (
                 SELECT
-                    asc_name,
+                    ascension,
+                    aspect,
                     attr,
                     description,
                     NULL
@@ -220,7 +233,7 @@ def create_final_table():
 
 
 print("Creating final ground truth table")
-# create_final_table()
+create_final_table()
 
 
 def parse_derpys_changes():
@@ -237,7 +250,8 @@ def parse_derpys_changes():
     cur.execute(
         """
         CREATE TABLE derpys (
-            asc_name TEXT,
+            ascension TEXT,
+            aspect TEXT,
             node TEXT,
             description TEXT
         )
@@ -273,14 +287,16 @@ def parse_derpys_changes():
                     .split(",")
                 )
 
-                ascension_name = tokens[0].split("_")[1]
-                if ascension_name.startswith("The"):
-                    ascension_name = "The " + ascension_name[3:]
+                ascension_name = tokens[0].split("_")[0]
+
+                aspect_name = tokens[0].split("_")[1]
+                if aspect_name.startswith("The"):
+                    aspect_name = "The " + aspect_name[3:]
 
                 main_node = tokens[1].strip()
                 sub_node = tokens[2].strip()
 
-                # print(ascension_name, main_node, sub_node)
+                # print(aspect_name, main_node, sub_node)
                 PARSE_STATE = STATE_PARSING_ADDITIONS
 
             elif PARSE_STATE == STATE_PARSING_ADDITIONS:
@@ -297,10 +313,11 @@ def parse_derpys_changes():
                     # Scuse the writing-proper-code abuse
                     cur.execute(
                         """
-                        INSERT INTO derpys (asc_name, node, description) VALUES (?, ?, ?)
+                        INSERT INTO derpys (ascension, aspect, node, description) VALUES (?, ?, ?, ?)
                         """,
                         (
                             ascension_name.strip(),
+                            aspect_name.strip(),
                             "Node" + main_node + "." + sub_node,
                             description.strip(),
                         ),
@@ -323,20 +340,27 @@ def parse_derpys_changes():
 
                     tokens = tokens[0].split('"')[1].split("_")
 
-                    ascension_name = tokens[1]
-                    if ascension_name.startswith("The"):
-                        ascension_name = "The " + ascension_name[3:]
+                    ascenion_name = tokens[0]
+
+                    aspect_name = tokens[1]
+                    if aspect_name.startswith("The"):
+                        aspect_name = "The " + aspect_name[3:]
                     node = tokens[2] + tokens[3]
 
                     cur.execute(
                         """
-                        INSERT INTO derpys (asc_name, node, description) VALUES (?, ?, ?)
+                        INSERT INTO derpys (ascension, aspect, node, description) VALUES (?, ?, ?, ?)
                         """,
-                        (ascension_name.strip(), node.strip(), description.strip()),
+                        (
+                            ascenion_name.strip(),
+                            aspect_name.strip(),
+                            node.strip(),
+                            description.strip(),
+                        ),
                     )
                     conn.commit()
 
-
+print("Parsing for Derpy's changes")
 parse_derpys_changes()
 
 conn.close()
