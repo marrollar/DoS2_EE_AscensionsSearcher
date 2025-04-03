@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import sqlite3
 import os
 
-ee_core_root = "../Core/Mods/Epic_Encounters_Core_63bb9b65-2964-4c10-be5b-55a63ec02fa0"
+ee_core_root = "../EE2_raw_src/Core/Mods/Epic_Encounters_Core_63bb9b65-2964-4c10-be5b-55a63ec02fa0"
 
 conn = sqlite3.connect("ascensions.db")
 cur = conn.cursor()
@@ -227,7 +227,7 @@ def parse_derpys_changes():
     """
     Parses Derpy's/Mods/Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua to extract out the changes from Derpy's mod.
     """
-    derpy_root = "../Derpy's/Mods/Derpy's EE2 tweaks"
+    derpy_root = "../EE2_raw_src/Derpy's/Mods/Derpy's EE2 tweaks"
     file = os.path.join(derpy_root, "Story/RawFiles/Lua/PipsFancyUIStuff.lua")
 
     prefixes = ["StatsTab.AddNodeStat", "StatsTab.STATS"]
