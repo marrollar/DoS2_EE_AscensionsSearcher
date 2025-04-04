@@ -1,7 +1,6 @@
 
-import AspectBox from "@/components/aspect-box";
-import { Aspects } from "@/types";
 import { getDerpysByCluster, getDescription_By_ClusterAndAttr, getOriginal_MainNodes_By_Cluster, getOriginal_SubNodes_By_Cluster } from "../../../db/queries";
+import AscensionsClientPage from "./client-page";
 
 interface ICluster_Order {
     [key: string]: string[]
@@ -100,9 +99,13 @@ export interface IClusterData {
     nodes: INodeData
 }
 
+export interface AscensionData {
+    [key: string]: IClusterData[]
+}
+
 async function getClusterData() {
 
-    const clusterData: { [key: string]: IClusterData[] } = {
+    const clusterData: AscensionData = {
         "Force": [],
         "Entropy": [],
         "Form": [],
@@ -170,19 +173,11 @@ async function getClusterData() {
 
 export default async function AscensionsHome() {
 
-    // const uniqueClusters = await getUniqueClusters();
-    // groupClusters(uniqueClusters);
-
-    // const forceClusters = await getOriginalNodesByAspect(Aspects.Force);
-    // const LifeClusters = await getOriginalNodesByAspect(Aspects.Life);
-    // const EntropyClusters = await getOriginalNodesByAspect(Aspects.Entropy);
-    // const FormClusters = await getOriginalNodesByAspect(Aspects.Form);
-    // const InertiaClusters = await getOriginalNodesByAspect(Aspects.Inertia);
-
     const clusterData = await getClusterData();
-    console.log(clusterData["Force"])
 
     return (
-        <AspectBox aspect={Aspects.Force}></AspectBox>
+        <>
+            <AscensionsClientPage clusterData={clusterData} />
+        </>
     )
 }

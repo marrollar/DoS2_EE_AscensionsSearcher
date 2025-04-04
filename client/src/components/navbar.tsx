@@ -11,14 +11,14 @@ export default function Navbar() {
             <div className="flex justify-normal items-center">
 
                 <button
-                    className={`text-white px-2 mx-2 hover:underline rounded-lg ${current_route === "/ascensions" ? 'bg-blue-800' : ''}`}
+                    className={`text-white px-2 mx-2 hover:underline rounded-lg hover:cursor-pointer ${current_route === "/ascensions" ? 'bg-blue-800' : ''}`}
                     onClick={() => router.push("/ascensions")}
                 >
                     Ascensions
                 </button>
 
                 <button
-                    className={`text-white px-2 mx-2 hover:underline rounded-lg ${current_route === "/artifacts" ? 'bg-blue-800' : ''}`}
+                    className={`text-white px-2 mx-2 hover:underline rounded-lg hover:cursor-pointer ${current_route === "/artifacts" ? 'bg-blue-800' : ''}`}
                     onClick={() => router.push("/artifacts")}>
                     Artifacts
                 </button>
