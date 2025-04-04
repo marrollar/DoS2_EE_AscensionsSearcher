@@ -32,19 +32,11 @@ def clean_bad_chars():
     with open("./AMER_UI_Ascension.lsx", "r+", encoding="utf-8") as f:
         text = f.read()
         text = text.replace("\u2019", "'")
-        text = text.replace("\u00BB", ">")
-    
+        text = text.replace("\u00bb", ">")
+
     with open("./AMER_UI_Ascension.lsx", "w") as f:
         f.write(text)
 
-    with open("./AMER_UI_Ascension.lsx", "rb") as f:
-        non_utf8 = set()
-        for i, byte in enumerate(f.read()):
-            try:
-                bytes([byte]).decode("utf-8")
-            except UnicodeDecodeError:
-                non_utf8.add(byte)
-        print(non_utf8)
 
 print("Sanitizing localization file")
 clean_bad_chars()
@@ -102,13 +94,32 @@ def parse_for_descriptions():
         tl_nodes = soup.find_all(id="TranslatedStringKey")
 
         for node in tl_nodes:
-            content = node.find("attribute", id="Content")
-            content_href = content.get("handle")
-            content_text = content.get("value")
-
             uuid = node.find("attribute", id="UUID").get("value")
 
             if any(uuid.startswith(prefix) for prefix in ascension_prefixes):
+                content = node.find("attribute", id="Content")
+                content_href = content.get("handle")
+
+                # Preprocess some of the HTML so the server doesn't have to
+                content_desc = content.get("value")
+                content_desc = (
+                    content_desc.replace("<p align='left'>", "")
+                    .replace('<p align="left">', "")
+                    .replace("</p>", "")
+                    .replace("face='Averia Serif'", "")
+                    .replace('face="Averia Serif"', "")
+                    .replace("size='20'", "")
+                    .replace('size="20"', "")
+                    .replace("size='21'", "")
+                    .replace('size="21"', "")
+                    .replace("size='30'", "")
+                    .replace('size="30"', "")
+                    .replace("<font color='a8a8a8'  >You may choose from:</font><br>", "")
+                    .replace("<font color='a8a8a8'  >Click on this node again to allocate it, granting:</font><br>", "")
+                    .replace("<br><br><font color='a8a8a8'  >Click on a node to view its properties.</font>", "")
+                )                
+
+                # Split UUID for aspect, cluster and node values
                 uuid_tokens = uuid.split("_")
 
                 aspect = uuid_tokens[3]
@@ -119,8 +130,8 @@ def parse_for_descriptions():
                 ascension_attr = uuid_tokens[5]
                 ascension_node = ""
 
+                # There are some weird nodes in the localization formatted, for example, AMER_UI_Ascension_Force_TheFalcon_Node_Node_0.0
                 if ascension_attr.startswith("Node"):
-                    # There are some weird nodes in the localization formatted, for example, AMER_UI_Ascension_Force_TheFalcon_Node_Node_0.0
                     if len(uuid_tokens) > 7 and "Node" in uuid_tokens[6]:
                         continue
                     else:
@@ -134,7 +145,7 @@ def parse_for_descriptions():
                         aspect.strip(),
                         cluster.strip(),
                         (ascension_attr + ascension_node).strip(),
-                        content_text.strip(),
+                        content_desc.strip(),
                         1 if "." in ascension_node else 0,
                     ),
                 )
