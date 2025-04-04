@@ -1,14 +1,20 @@
 import { IClusterData } from "@/app/ascensions/page"
 import NodeBox from "./NodeBox"
+import { Aspect_Txt_Color, Aspects } from "@/types"
+import * as cheerio from "cheerio"
 
-export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData }>) {
-    const cluster_Name = cluster.title
+export default function ClusterBox({ aspect, cluster }: Readonly<{ aspect: Aspects, cluster: IClusterData }>) {
+    const $ = cheerio.load(cluster.title)
+    $("font").attr("color", Aspect_Txt_Color[aspect].slice(1))
+    const cluster_Name = $.html()
     const cluster_MainDescription = cluster.description
     const cluster_Nodes = cluster.nodes
 
     let cluster_ReqRew = cluster.rewards
     cluster_ReqRew = cluster_ReqRew.replace("Requires:", "Required:").replace("Completion grants:", "Completion:").replaceAll("<br>", "")
     const reqRew_parts = cluster_ReqRew.split(".")
+
+
 
     return (
         <div className="bg-[#202020] mt-4 px-2 pb-3">

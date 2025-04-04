@@ -10,11 +10,9 @@ export default function NodeBox({ parentKey, mainNode, subNodes, implicit }:
         implicit: string
     }>) {
 
-    // TODO: This logic likely doesn't work for multiple implicit lines.
     let implicitClean = ""
     if (implicit.length > 0) {
         const $ = cheerio.load(implicit)
-        console.log($.text())
 
         const implicitClean_tokens = $.text()
             .replace(/\s+/g, ' ')

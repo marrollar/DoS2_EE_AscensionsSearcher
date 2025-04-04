@@ -15,7 +15,7 @@ export default function AspectBox({
                 {
                     clusters.map((c) => (
                         <div key={aspect + c.title}>
-                            <ClusterBox cluster={c} />
+                            <ClusterBox aspect={aspect} cluster={c} />
                         </div>
 
                     ))
