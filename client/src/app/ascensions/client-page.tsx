@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import { AscensionData } from "./page";
 
-export default function AscensionsClientPage({ clusterData }: Readonly<{ clusterData: AscensionData }>) {
+export default function AscensionsClientPage({ clusterData: ascensionsData }: Readonly<{ clusterData: AscensionData }>) {
 
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -29,11 +29,11 @@ export default function AscensionsClientPage({ clusterData }: Readonly<{ cluster
                 onChangeHandler={(e) => { handleSearchChange(e.target.value) }}
                 defaultValue={searchParams.get("query")?.toString()}
             />
-            <AspectBox aspect={Aspects.Force} clusters={clusterData["Force"]}></AspectBox>
-            <AspectBox aspect={Aspects.Entropy} clusters={clusterData["Entropy"]}></AspectBox>
-            <AspectBox aspect={Aspects.Form} clusters={clusterData["Form"]}></AspectBox>
-            <AspectBox aspect={Aspects.Inertia} clusters={clusterData["Inertia"]}></AspectBox>
-            <AspectBox aspect={Aspects.Life} clusters={clusterData["Life"]}></AspectBox>
+            <AspectBox aspect={Aspects.Force} clusters={ascensionsData["Force"]}></AspectBox>
+            <AspectBox aspect={Aspects.Entropy} clusters={ascensionsData["Entropy"]}></AspectBox>
+            <AspectBox aspect={Aspects.Form} clusters={ascensionsData["Form"]}></AspectBox>
+            <AspectBox aspect={Aspects.Inertia} clusters={ascensionsData["Inertia"]}></AspectBox>
+            <AspectBox aspect={Aspects.Life} clusters={ascensionsData["Life"]}></AspectBox>
         </>
     )
 

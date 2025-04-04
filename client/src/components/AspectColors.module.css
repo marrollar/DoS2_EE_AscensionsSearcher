@@ -1,19 +1,39 @@
-.force_color {
+.force_bg_color {
     background-color: #280505;
 }
 
-.life_color {
+.force_text_color {
+    color: #e67f7f;
+}
+
+.life_bg_color {
     background-color: #282805;
 }
 
-.entropy_color {
+.life_text_color {
+    color: #c1a757
+}
+
+.entropy_bg_color {
     background-color: #280028;
 }
 
-.form_color {
+.entropy_text_color {
+    color: #beb3ff
+}
+
+.form_bg_color {
     background-color: #052805;
 }
 
-.inertia_color {
+.form_text_color {
+    color: #4ae88c
+}
+
+.inertia_bg_color {
     background-color: #052828;
+}
+
+.inertia_text_color {
+    color: #73b3f2
 }
