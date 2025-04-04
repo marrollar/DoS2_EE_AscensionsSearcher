@@ -67,6 +67,7 @@ def parse_for_descriptions():
             attr TEXT NOT NULL,
             description TEXT NOT NULL,
             is_subnode INTEGER,
+            has_implicit INTEGER,
 
             PRIMARY KEY (aspect, cluster, attr)
         )
@@ -114,10 +115,18 @@ def parse_for_descriptions():
                     .replace('size="21"', "")
                     .replace("size='30'", "")
                     .replace('size="30"', "")
-                    .replace("<font color='a8a8a8'  >You may choose from:</font><br>", "")
-                    .replace("<font color='a8a8a8'  >Click on this node again to allocate it, granting:</font><br>", "")
-                    .replace("<br><br><font color='a8a8a8'  >Click on a node to view its properties.</font>", "")
-                )                
+                    .replace(
+                        "<font color='a8a8a8'  >You may choose from:</font><br>", ""
+                    )
+                    .replace(
+                        "<font color='a8a8a8'  >Click on this node again to allocate it, granting:</font><br>",
+                        "",
+                    )
+                    .replace(
+                        "<br><br><font color='a8a8a8'  >Click on a node to view its properties.</font>",
+                        "",
+                    )
+                )
 
                 # Split UUID for aspect, cluster and node values
                 uuid_tokens = uuid.split("_")
@@ -139,7 +148,7 @@ def parse_for_descriptions():
 
                 # print(cluster, "\n", ascension_attr, ascension_node, "\n\n")
                 cur.execute(
-                    "INSERT INTO core (href, aspect, cluster, attr, description, is_subnode) VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO core (href, aspect, cluster, attr, description, is_subnode, has_implicit) VALUES (?, ?, ?, ?, ?, ?, ?)",
                     (
                         content_href.strip(),
                         aspect.strip(),
@@ -147,6 +156,7 @@ def parse_for_descriptions():
                         (ascension_attr + ascension_node).strip(),
                         content_desc.strip(),
                         1 if "." in ascension_node else 0,
+                        1 if "Gain:" in content_desc else 0,
                     ),
                 )
                 conn.commit()
@@ -278,7 +288,8 @@ def create_final_table():
                     nr.cluster AS cluster, 
                     c.attr AS attr, 
                     c.description AS description,
-                    c.is_subnode as is_subnode
+                    c.is_subnode as is_subnode,
+                    c.has_implicit as has_implicit
                 FROM node_rewards AS nr
                 JOIN core AS c
                 ON nr.cluster=c.cluster AND nr.node=c.attr
@@ -289,6 +300,7 @@ def create_final_table():
                     cluster,
                     attr,
                     description,
+                    NULL,
                     NULL
                 FROM core
                 WHERE attr="Title" OR attr="Desc" OR attr="Rewards"
@@ -308,6 +320,7 @@ def create_final_table():
             attr TEXT NOT NULL,
             description TEXT NOT NULL,
             is_subnode INTEGER,
+            has_implicit INTEGER,
 
             PRIMARY KEY (aspect, cluster, attr)
         )
