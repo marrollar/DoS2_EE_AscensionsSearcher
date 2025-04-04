@@ -11,7 +11,7 @@ export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData
     const reqRew_parts = cluster_ReqRew.split(".")
 
     return (
-        <div className="bg-[#202020] mt-1 px-2">
+        <div className="bg-[#202020] mt-1 px-2 pb-3">
             <div className="text-center text-[24px]" dangerouslySetInnerHTML={{ __html: cluster_Name }} />
             <div className="text-center">
                 {cluster_MainDescription}
@@ -27,7 +27,12 @@ export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData
             {
                 Object.keys(cluster_Nodes).map((key) => (
                     <div key={cluster_Name + key}>
-                        <NodeBox parentKey={cluster_Name + key} mainNode={key} subNodes={cluster_Nodes[key].subnodes} />
+                        <NodeBox
+                            parentKey={cluster_Name + key}
+                            mainNode={key}
+                            subNodes={cluster_Nodes[key].subnodes}
+                            implicit={cluster_Nodes[key].hasImplicit ? cluster_Nodes[key].description : ""}
+                        />
                     </div>
                 ))
             }
