@@ -18,6 +18,25 @@ if not os.path.isdir(ORM_DIR):
     raise ("ERROR: The website's ORM folder was not found.")
 
 
+EE_KEY_WORDS = [
+    "Elementalist",
+    "Paucity",
+    "Predator",
+    "Violent Strikes",
+    "Occultist",
+    "Vitality Void",
+    "Wither",
+    "Abeyance",
+    "Adaptation",
+    "Centurion",
+    "Benevolence",
+    "Celestial",
+    "Ward",
+    "Prosperity",
+    "Purity",
+    "Defiance"
+]
+
 conn = sqlite3.connect(DB_NAME)
 cur = conn.cursor()
 
@@ -409,7 +428,12 @@ def parse_derpys_changes():
 
                 if line.strip().startswith("Description"):
                     tokens = line.split("=")
+
                     description = tokens[1].replace('"', "")
+                    for keyword in EE_KEY_WORDS:
+                        description = description.replace(
+                            keyword, f'<font color="ebc808">{keyword}</font>'
+                        )
 
                     # Scuse the writing-proper-code abuse
                     cur.execute(
@@ -420,7 +444,7 @@ def parse_derpys_changes():
                             aspect.strip(),
                             cluster.strip(),
                             "Node " + main_node + "." + sub_node,
-                            description.strip(),
+                            '<font color="cb9780">></font> ' + description.strip(),
                         ),
                     )
                     conn.commit()
@@ -438,6 +462,10 @@ def parse_derpys_changes():
                 tokens = line.split("=")
                 if tokens[0].strip().endswith("Description"):
                     description = tokens[1].replace('"', "")
+                    for keyword in EE_KEY_WORDS:
+                        description = description.replace(
+                            keyword, f'<font color="ebc808">{keyword}</font>'
+                        )
 
                     tokens = tokens[0].split('"')[1].split("_")
 
@@ -456,7 +484,7 @@ def parse_derpys_changes():
                             ascenion_name.strip(),
                             cluster.strip(),
                             node.strip(),
-                            description.strip(),
+                            '<font color="cb9780">></font> ' + description.strip(),
                         ),
                     )
                     conn.commit()
