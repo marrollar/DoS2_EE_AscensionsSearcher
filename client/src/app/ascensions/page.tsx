@@ -103,7 +103,7 @@ export interface AscensionData {
     [key: string]: IClusterData[]
 }
 
-async function getClusterData() {
+async function getAscensionsData() {
 
     const clusterData: AscensionData = {
         "Force": [],
@@ -143,7 +143,7 @@ async function getClusterData() {
                     nodes[parseInt(mainNode, 10)].subnodes[parseInt(subNode, 10)].derpys = e.description
                 } catch (error: unknown) {
                     if (error instanceof TypeError) {
-                        // We assume that in any circumstance that a pre-existing node failed to be found, that it is a new node added by Derpy or some other mod instead.
+                        // We assume that, in any circumstance that a pre-existing node failed to be found, that it is a new node added by Derpy or some other mod instead.
                         nodes[parseInt(mainNode, 10)].subnodes[parseInt(subNode, 10)] = {
                             original: "",
                             derpys: e.description
@@ -173,11 +173,11 @@ async function getClusterData() {
 
 export default async function AscensionsHome() {
 
-    const clusterData = await getClusterData();
+    const ascensionsData = await getAscensionsData();
 
     return (
         <>
-            <AscensionsClientPage clusterData={clusterData} />
+            <AscensionsClientPage clusterData={ascensionsData} />
         </>
     )
 }
