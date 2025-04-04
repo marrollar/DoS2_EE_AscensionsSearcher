@@ -13,7 +13,7 @@ export default function AspectBox({
         <div className="">
             <AspectHeader aspect={aspect}>
                 {
-                    clusters.slice(0,1).map((c) => (
+                    clusters.map((c) => (
                         <div key={aspect + c.title}>
                             <ClusterBox cluster={c} />
                         </div>
