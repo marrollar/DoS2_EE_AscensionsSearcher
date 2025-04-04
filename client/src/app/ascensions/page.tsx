@@ -79,20 +79,21 @@ const CLUSTER_ORDER: ICluster_Order = {
     ]
 }
 
-export interface ISubNodeData {
+export interface ISubNode {
     original: string,
     derpys?: string
 }
 
-export interface INodeData {
+export interface IMainNode {
     description: string,
+    hasImplicit: boolean,
     subnodes: {
-        [key: number]: ISubNodeData
+        [key: number]: ISubNode
     },
 }
 
 export interface IClusterNodes {
-    [key: string]: INodeData
+    [key: string]: IMainNode
 }
 
 export interface IClusterData {
@@ -126,7 +127,8 @@ async function getAscensionsData() {
                 const mainNode = e.attr.split(" ")[1];
                 nodes[parseInt(mainNode, 10)] = {
                     description: e.description,
-                    subnodes: {}
+                    subnodes: {},
+                    hasImplicit: e.has_implicit ? true : false
                 }
             })
 
