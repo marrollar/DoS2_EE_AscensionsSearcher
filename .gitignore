@@ -139,5 +139,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# vscode
+.vscode/
+
 # ==== tracked, do-not-commit files ====
 data/AMER_UI_Ascension.lsx

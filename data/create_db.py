@@ -22,13 +22,41 @@ conn = sqlite3.connect(DB_NAME)
 cur = conn.cursor()
 
 
+def clean_bad_chars():
+    """
+    The localization contains a bunch of non UTF-8 characters, which will mess with rendering later, so we replace them with closest approximations.
+    """
+    file = os.path.join(EE_CORE_ROOT, "Localization/AMER_UI_Ascension.lsx")
+    shutil.copy(file, "./AMER_UI_Ascension.lsx")
+
+    with open("./AMER_UI_Ascension.lsx", "r+", encoding="utf-8") as f:
+        text = f.read()
+        text = text.replace("\u2019", "'")
+        text = text.replace("\u00BB", ">")
+    
+    with open("./AMER_UI_Ascension.lsx", "w") as f:
+        f.write(text)
+
+    with open("./AMER_UI_Ascension.lsx", "rb") as f:
+        non_utf8 = set()
+        for i, byte in enumerate(f.read()):
+            try:
+                bytes([byte]).decode("utf-8")
+            except UnicodeDecodeError:
+                non_utf8.add(byte)
+        print(non_utf8)
+
+print("Sanitizing localization file")
+clean_bad_chars()
+
+
 def parse_for_descriptions():
     """
     Parses Epic_Encounters_Core/Localization/AMER_UI_Ascension.lsx to extract out the node descriptions for all ascensions.
     There are unused and duplicate descriptions which are not handled in this function; they are handled later.
     """
 
-    file = os.path.join(EE_CORE_ROOT, "Localization/AMER_UI_Ascension.lsx")
+    file = "./AMER_UI_Ascension.lsx"
 
     ascension_prefixes = [
         "AMER_UI_Ascension_Force_",
@@ -70,7 +98,7 @@ def parse_for_descriptions():
         The aspect, cluster and node is extracted from UUID.
         """
 
-        soup = BeautifulSoup(f.read(), "lxml")
+        soup = BeautifulSoup(f.read(), "xml")
         tl_nodes = soup.find_all(id="TranslatedStringKey")
 
         for node in tl_nodes:
@@ -138,7 +166,7 @@ def parse_for_corrections():
         "DB_AMER_UI_Ascension_Node_Reward_StatusMod_ExtendedStat",
         "DB_AMER_UI_Ascension_Node_Reward_Keyword",
         "DB_AMER_UI_Ascension_Node_Reward_ScalingStat_StatusMod_ExtendedStat",
-        "DB_AMER_UI_Ascension_Node_Reward_ScalingStat_StatusMod_FlexStat"
+        "DB_AMER_UI_Ascension_Node_Reward_ScalingStat_StatusMod_FlexStat",
     ]
 
     cur.execute(
