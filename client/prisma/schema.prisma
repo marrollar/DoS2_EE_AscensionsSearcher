@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./ascensions.db"
+}
+
+model derpys {
+  aspect      String
+  cluster     String
+  node        String
+  description String
+
+  @@id([aspect, cluster, node])
+}
+
+model nodes {
+  aspect      String
+  cluster     String
+  attr        String
+  description String
+  is_subnode  Int?
+
+  @@id([aspect, cluster, attr])
+}

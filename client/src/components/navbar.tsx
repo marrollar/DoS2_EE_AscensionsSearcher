@@ -7,7 +7,7 @@ export default function Navbar() {
     const current_route = usePathname();
 
     return (
-        <nav className="w-[40%] mx-auto my-2 py-2 bg-gray-900 rounded-lg shadow-md">
+        <nav className=" py-2 bg-gray-900 rounded-lg shadow-md">
             <div className="flex justify-normal items-center">
 
                 <button
