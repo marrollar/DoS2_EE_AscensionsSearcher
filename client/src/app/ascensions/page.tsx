@@ -79,16 +79,20 @@ const CLUSTER_ORDER: ICluster_Order = {
     ]
 }
 
+export interface ISubNodeData {
+    original: string,
+    derpys?: string
+}
+
 export interface INodeData {
-    [key: number]: {
-        description: string,
-        subnodes: {
-            [key: number]: {
-                original: string,
-                derpys?: string
-            }
-        },
-    }
+    description: string,
+    subnodes: {
+        [key: number]: ISubNodeData
+    },
+}
+
+export interface IClusterNodes {
+    [key: string]: INodeData
 }
 
 export interface IClusterData {
@@ -96,7 +100,7 @@ export interface IClusterData {
     description: string,
     rewards: string,
     aspect: string,
-    nodes: INodeData
+    nodes: IClusterNodes
 }
 
 export interface AscensionData {
@@ -115,7 +119,7 @@ async function getAscensionsData() {
 
     for (const aspect in CLUSTER_ORDER) {
         for (const cluster of CLUSTER_ORDER[aspect]) {
-            const nodes: INodeData = {};
+            const nodes: IClusterNodes = {};
 
             const mainNodes = await getOriginal_MainNodes_By_Cluster(cluster);
             mainNodes.forEach(e => {
