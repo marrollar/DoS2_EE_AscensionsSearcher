@@ -17,11 +17,12 @@ model derpys {
 }
 
 model nodes {
-  aspect      String
-  cluster     String
-  attr        String
-  description String
-  is_subnode  Int?
+  aspect       String
+  cluster      String
+  attr         String
+  description  String
+  is_subnode   Int?
+  has_implicit Int?
 
   @@id([aspect, cluster, attr])
 }
