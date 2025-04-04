@@ -1,5 +1,4 @@
 import { IClusterData } from "@/app/ascensions/page"
-import * as cheerio from "cheerio"
 import NodeBox from "./NodeBox"
 
 export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData }>) {
@@ -17,20 +16,14 @@ export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData
             <div className="text-center">
                 {cluster_MainDescription}
             </div>
-            {
-                reqRew_parts ? (
-                    <div className="flex w-[100%] my-3">
-                        <div className="w-1/2 text-center">
-                            <div dangerouslySetInnerHTML={{ __html: reqRew_parts[0] }} />
-                        </div>
-                        <div className="w-1/2 text-center">
-                            <div dangerouslySetInnerHTML={{ __html: reqRew_parts[1] }} />
-                        </div>
-                    </div>
-                ) : (
-                    <div> Error while trying to format requirements and rewards HTML. </div>
-                )
-            }
+            <div className="flex w-[100%] my-3">
+                <div className="w-1/2 text-center">
+                    <div dangerouslySetInnerHTML={{ __html: reqRew_parts[0] }} />
+                </div>
+                <div className="w-1/2 text-center">
+                    <div dangerouslySetInnerHTML={{ __html: reqRew_parts[1] }} />
+                </div>
+            </div>
             {
                 Object.keys(cluster_Nodes).map((key) => (
                     <div key={cluster_Name + key}>
