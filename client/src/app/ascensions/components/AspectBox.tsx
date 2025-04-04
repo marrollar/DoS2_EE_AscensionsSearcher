@@ -2,8 +2,8 @@
 
 import { IClusterData } from "@/app/ascensions/page";
 import { Aspects } from "@/types";
-import AspectHeader from "./aspect-header";
-import ClusterBox from "./cluster-box";
+import AspectHeader from "./AspectHeader";
+import ClusterBox from "./ClusterBox";
 
 export default function AspectBox({
     aspect,
@@ -14,7 +14,7 @@ export default function AspectBox({
             <AspectHeader aspect={aspect}>
                 {
                     clusters.slice(0,1).map((c) => (
-                        <div key={c.title}>
+                        <div key={aspect + c.title}>
                             <ClusterBox cluster={c} />
                         </div>
 

@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 
-export default function Navbar() {
+export default function NavBar() {
     const router = useRouter();
     const current_route = usePathname();
 

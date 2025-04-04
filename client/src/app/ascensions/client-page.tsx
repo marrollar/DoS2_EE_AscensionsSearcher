@@ -1,7 +1,7 @@
 "use client"
 
-import AspectBox from "@/components/aspect-box";
-import SearchBar from "@/components/search-bar";
+import AspectBox from "@/app/ascensions/components/AspectBox";
+import SearchBar from "@/components/SearchBar";
 import { Aspects } from "@/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
@@ -30,10 +30,10 @@ export default function AscensionsClientPage({ clusterData: ascensionsData }: Re
                 defaultValue={searchParams.get("query")?.toString()}
             />
             <AspectBox aspect={Aspects.Force} clusters={ascensionsData["Force"]}></AspectBox>
-            <AspectBox aspect={Aspects.Entropy} clusters={ascensionsData["Entropy"]}></AspectBox>
+            {/* <AspectBox aspect={Aspects.Entropy} clusters={ascensionsData["Entropy"]}></AspectBox>
             <AspectBox aspect={Aspects.Form} clusters={ascensionsData["Form"]}></AspectBox>
             <AspectBox aspect={Aspects.Inertia} clusters={ascensionsData["Inertia"]}></AspectBox>
-            <AspectBox aspect={Aspects.Life} clusters={ascensionsData["Life"]}></AspectBox>
+            <AspectBox aspect={Aspects.Life} clusters={ascensionsData["Life"]}></AspectBox> */}
         </>
     )
 
