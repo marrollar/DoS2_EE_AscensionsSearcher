@@ -11,7 +11,7 @@ export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData
     const reqRew_parts = cluster_ReqRew.split(".")
 
     return (
-        <div className="bg-[#202020] mt-1 px-2 pb-3">
+        <div className="bg-[#202020] mt-4 px-2 pb-3">
             <div className="text-center text-[24px]" dangerouslySetInnerHTML={{ __html: cluster_Name }} />
             <div className="text-center">
                 {cluster_MainDescription}

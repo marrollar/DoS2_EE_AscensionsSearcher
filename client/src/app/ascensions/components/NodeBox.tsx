@@ -1,4 +1,4 @@
-import { NodeColLarge, NodeColSmall } from "@/app/ascensions/components/NodeTable";
+import { NodeColLarge, NodeColSmall, SubNodeRow } from "@/app/ascensions/components/NodeTable";
 import { ISubNode } from "@/app/ascensions/page";
 import * as cheerio from "cheerio";
 
@@ -10,12 +10,22 @@ export default function NodeBox({ parentKey, mainNode, subNodes, implicit }:
         implicit: string
     }>) {
 
+    // TODO: This logic likely doesn't work for multiple implicit lines.
     let implicitClean = ""
     if (implicit.length > 0) {
         const $ = cheerio.load(implicit)
         console.log($.text())
 
-        implicitClean = $.text().split(".")[0].replace("Gain:  > ", "")
+        const implicitClean_tokens = $.text()
+            .replace(/\s+/g, ' ')
+            .trim()
+            .split("Additionally, you may choose from:")[0]
+            .replace("Gain: ", "")
+            .split(">")
+        implicitClean = '<font color="cb9780">></font> ' + implicitClean_tokens[1]
+        implicitClean_tokens.slice(2).forEach(element => {
+            implicitClean = implicitClean + '<br><font color="cb9780">></font> ' + element
+        });
     }
 
     return (
@@ -26,28 +36,28 @@ export default function NodeBox({ parentKey, mainNode, subNodes, implicit }:
                         <NodeColSmall>
                             {mainNode}
                             <hr className="border-t border-gray-300/25" />
-                            {implicitClean}
+                            <div dangerouslySetInnerHTML={{ __html: implicitClean }} />
                         </NodeColSmall>
                         <NodeColLarge>
-                            {Object.keys(subNodes).map((key) => {
+                            <table className="w-[100%] border-collapse">
+                                <tbody>
+                                    {Object.keys(subNodes).map((key) => {
 
-                                const original = subNodes[key].original
-                                const derpys = subNodes[key].derpys
-                                // TODO: Implement derpys changes
+                                        const parentColorId = parseInt(mainNode) % 2
+                                        let myColorId = parseInt(key) % 2 == 0
 
-                                const original_tokens = original.split("<br>")
-
-                                return (
-                                    <div key={parentKey + key}>
-                                        <div dangerouslySetInnerHTML={{ __html: original_tokens[0] }} />
-                                        {
-                                            original_tokens.slice(1).map((e) => (
-                                                <div key={parentKey + key + e + "original"} dangerouslySetInnerHTML={{ __html: e }} className="pl-4" />
-                                            ))
+                                        if (parentColorId == 0) {
+                                            myColorId = !myColorId
                                         }
-                                    </div>
-                                )
-                            })}
+
+                                        return (
+                                            <tr key={parentKey + key} className={`${myColorId ? "bg-gray-800" : "bg-gray-700"}`}>
+                                                <SubNodeRow subNodes={subNodes[key]} isFirst={key === "0"} />
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
                         </NodeColLarge>
                     </tr>
 
