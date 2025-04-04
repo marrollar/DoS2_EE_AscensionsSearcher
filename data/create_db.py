@@ -134,6 +134,11 @@ def parse_for_corrections():
         "DB_AMER_UI_Ascension_Node_Reward_SpecialLogic",
         "DB_AMER_UI_Ascension_Node_Reward_FlexStat",
         "DB_AMER_UI_Ascension_Node_Reward_ExtendedStat",
+        "DB_AMER_UI_Ascension_Node_Reward_StatusMod_FlexStat",
+        "DB_AMER_UI_Ascension_Node_Reward_StatusMod_ExtendedStat",
+        "DB_AMER_UI_Ascension_Node_Reward_Keyword",
+        "DB_AMER_UI_Ascension_Node_Reward_ScalingStat_StatusMod_ExtendedStat",
+        "DB_AMER_UI_Ascension_Node_Reward_ScalingStat_StatusMod_FlexStat"
     ]
 
     cur.execute(
