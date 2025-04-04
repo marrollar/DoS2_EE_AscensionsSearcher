@@ -34,7 +34,7 @@ EE_KEY_WORDS = [
     "Ward",
     "Prosperity",
     "Purity",
-    "Defiance"
+    "Defiance",
 ]
 
 conn = sqlite3.connect(DB_NAME)
@@ -146,6 +146,8 @@ def parse_for_descriptions():
                         "",
                     )
                 )
+                if content_desc.endswith("."):
+                    content_desc = content_desc[:-1]
 
                 # Split UUID for aspect, cluster and node values
                 uuid_tokens = uuid.split("_")
@@ -207,6 +209,7 @@ def parse_for_corrections():
         "DB_AMER_UI_Ascension_Node_Reward_Keyword",
         "DB_AMER_UI_Ascension_Node_Reward_ScalingStat_StatusMod_ExtendedStat",
         "DB_AMER_UI_Ascension_Node_Reward_ScalingStat_StatusMod_FlexStat",
+        "PROC_AMER_UI_Ascension_Node_AddReward_FromReal",
     ]
 
     cur.execute(
@@ -434,6 +437,9 @@ def parse_derpys_changes():
                         description = description.replace(
                             keyword, f'<font color="ebc808">{keyword}</font>'
                         )
+                    description = description.replace(
+                        "<br><br>", '<br><font color="cb9780">&gt;</font> '
+                    )
 
                     # Scuse the writing-proper-code abuse
                     cur.execute(
@@ -444,7 +450,7 @@ def parse_derpys_changes():
                             aspect.strip(),
                             cluster.strip(),
                             "Node " + main_node + "." + sub_node,
-                            '<font color="cb9780">></font> ' + description.strip(),
+                            '<font color="cb9780">&gt;</font> ' + description.strip(),
                         ),
                     )
                     conn.commit()
@@ -466,6 +472,9 @@ def parse_derpys_changes():
                         description = description.replace(
                             keyword, f'<font color="ebc808">{keyword}</font>'
                         )
+                    description = description.replace(
+                        "<br><br>", '<br><font color="cb9780">&gt;</font> '
+                    )
 
                     tokens = tokens[0].split('"')[1].split("_")
 
@@ -484,7 +493,7 @@ def parse_derpys_changes():
                             ascenion_name.strip(),
                             cluster.strip(),
                             node.strip(),
-                            '<font color="cb9780">></font> ' + description.strip(),
+                            '<font color="cb9780">&gt;</font> ' + description.strip(),
                         ),
                     )
                     conn.commit()
