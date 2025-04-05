@@ -1,13 +1,14 @@
 
+import { Aspects, stringToAspect } from "@/types";
 import { getDerpysByCluster, getDescription_By_ClusterAndAttr, getOriginal_MainNodes_By_Cluster, getOriginal_SubNodes_By_Cluster } from "../../../db/queries";
 import AscensionsClientPage from "./client-page";
 
-interface ICluster_Order {
-    [key: string]: string[]
+type ICluster_Order = {
+    [key in Aspects]: string[]
 }
 
 const CLUSTER_ORDER: ICluster_Order = {
-    Force: [
+    [Aspects.Force]: [
         "The Hatchet",
         "The Hornet",
         "The Serpent",
@@ -21,7 +22,7 @@ const CLUSTER_ORDER: ICluster_Order = {
         "The Kraken",
         "Wrath"
     ],
-    Entropy: [
+    [Aspects.Entropy]: [
         "The Fly",
         "The Wolf",
         "The Vulture",
@@ -35,7 +36,7 @@ const CLUSTER_ORDER: ICluster_Order = {
         "Decay",
         "Demilich",
     ],
-    Form: [
+    [Aspects.Form]: [
         "The Key",
         "The Nautilus",
         "The Silkworm",
@@ -49,7 +50,7 @@ const CLUSTER_ORDER: ICluster_Order = {
         "Sphinx",
         "The Ritual",
     ],
-    Inertia: [
+    [Aspects.Inertia]: [
         "The Armadillo",
         "The Auroch",
         "The Guardsman",
@@ -63,7 +64,7 @@ const CLUSTER_ORDER: ICluster_Order = {
         "Fortress",
         "The Arena",
     ],
-    Life: [
+    [Aspects.Life]: [
         "The Rabbit",
         "The Hind",
         "The Lizard",
@@ -76,7 +77,8 @@ const CLUSTER_ORDER: ICluster_Order = {
         "Splendor",
         "The Goddess",
         "Hope",
-    ]
+    ],
+    [Aspects.Default]: []
 }
 
 export interface ISubNode {
@@ -88,8 +90,9 @@ export interface IMainNode {
     description: string,
     hasImplicit: boolean,
     subnodes: {
-        [key: number]: ISubNode
+        [key: string]: ISubNode
     },
+    _subnodesFlat: ISubNode[]
 }
 
 export interface IClusterNodes {
@@ -101,7 +104,8 @@ export interface IClusterData {
     description: string,
     rewards: string,
     aspect: string,
-    nodes: IClusterNodes
+    nodes: IClusterNodes,
+    _nodesFlat: IMainNode[]
 }
 
 export interface AscensionData {
@@ -110,7 +114,7 @@ export interface AscensionData {
 
 async function getAscensionsData() {
 
-    const clusterData: AscensionData = {
+    const ascensionsData: AscensionData = {
         "Force": [],
         "Entropy": [],
         "Form": [],
@@ -118,39 +122,46 @@ async function getAscensionsData() {
         "Life": []
     };
 
-    for (const aspect in CLUSTER_ORDER) {
+    for (const aspectStr in CLUSTER_ORDER) {
+
+        const aspect = stringToAspect[aspectStr]
+
         for (const cluster of CLUSTER_ORDER[aspect]) {
             const nodes: IClusterNodes = {};
 
             const mainNodes = await getOriginal_MainNodes_By_Cluster(cluster);
             mainNodes.forEach(e => {
                 const mainNode = e.attr.split(" ")[1];
-                nodes[parseInt(mainNode, 10)] = {
+
+                nodes[mainNode] = {
                     description: e.description,
                     subnodes: {},
-                    hasImplicit: e.has_implicit ? true : false
+                    hasImplicit: e.has_implicit ? true : false,
+                    _subnodesFlat: []
                 }
             })
 
             const subNodes = await getOriginal_SubNodes_By_Cluster(cluster);
             subNodes.forEach(e => {
-                const mainNode = e.attr.split(" ")[1];
-                const subNode = mainNode.split(".")[1];
+                const tokens = e.attr.split(" ")[1].split(".");
+                const mainNode = tokens[0]
+                const subNode = tokens[1];
 
-                nodes[parseInt(mainNode, 10)].subnodes[parseInt(subNode, 10)] = { original: e.description }
+                nodes[mainNode].subnodes[subNode] = { original: e.description }
             })
 
             const derpysNodes = await getDerpysByCluster(cluster);
             derpysNodes.forEach(e => {
-                const mainNode = e.node.split(" ")[1]
-                const subNode = mainNode.split(".")[1]
+                const tokens = e.node.split(" ")[1].split(".");
+                const mainNode = tokens[0]
+                const subNode = tokens[1];
 
                 try {
-                    nodes[parseInt(mainNode, 10)].subnodes[parseInt(subNode, 10)].derpys = e.description
+                    nodes[mainNode].subnodes[subNode].derpys = e.description
                 } catch (error: unknown) {
                     if (error instanceof TypeError) {
                         // We assume that, in any circumstance that a pre-existing node failed to be found, that it is a new node added by Derpy or some other mod instead.
-                        nodes[parseInt(mainNode, 10)].subnodes[parseInt(subNode, 10)] = {
+                        nodes[mainNode].subnodes[subNode] = {
                             original: "",
                             derpys: e.description
                         }
@@ -158,22 +169,31 @@ async function getAscensionsData() {
                         throw error
                     }
                 }
-
             })
+
+            Object.values(nodes).map(mainNodeData => {
+                mainNodeData._subnodesFlat = Object.entries(mainNodeData.subnodes).map(([subNodes, snData]) => ({
+                    subNodes,
+                    ...snData
+                }))
+            });
 
             const data: IClusterData = {
                 title: (await getDescription_By_ClusterAndAttr(cluster, "Title"))["description"],
                 description: (await getDescription_By_ClusterAndAttr(cluster, "Desc"))["description"],
                 rewards: (await getDescription_By_ClusterAndAttr(cluster, "Rewards"))["description"],
                 aspect: aspect,
-                nodes: nodes
+                nodes: nodes,
+                _nodesFlat: Object.entries(nodes).map(([mainNode, subNodes]) => ({
+                    mainNode,
+                    ...subNodes
+                }))
             }
-
-            clusterData[aspect].push(data)
+            ascensionsData[aspect].push(data)
         }
     }
 
-    return clusterData
+    return ascensionsData
 
 }
 
@@ -183,7 +203,7 @@ export default async function AscensionsHome() {
 
     return (
         <>
-            <AscensionsClientPage clusterData={ascensionsData} />
+            <AscensionsClientPage ascensionsData={ascensionsData} />
         </>
     )
 }

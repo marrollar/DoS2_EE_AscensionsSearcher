@@ -1,26 +1,29 @@
 "use client"
 
 import { IClusterData } from "@/app/ascensions/page";
-import { Aspects } from "@/types";
+import { useContext } from "react";
+import { AspectContext } from "../../client-page";
 import AspectHeader from "./AspectHeader";
-import ClusterBox from "./ClusterBox";
+import ClusterBox from "../clusterbox/ClusterBox";
 
 export default function AspectBox({
-    aspect,
     clusters,
-}: Readonly<{ aspect: Aspects, clusters: IClusterData[] }>) {
+}: Readonly<{ clusters: IClusterData[] }>) {
+
+    const aspect = useContext(AspectContext)
+
     return (
         <div className="">
-            <AspectHeader aspect={aspect}>
+            <AspectHeader>
                 {
                     clusters.map((c) => (
                         <div key={aspect + c.title}>
-                            <ClusterBox aspect={aspect} cluster={c} />
+                            <ClusterBox cluster={c} />
                         </div>
 
                     ))
                 }
-            </AspectHeader >
+            </AspectHeader>
         </div>
 
     )
