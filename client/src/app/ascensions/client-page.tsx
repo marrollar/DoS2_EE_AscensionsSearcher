@@ -90,7 +90,7 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
             setFilteredAscensions(ascensionsData)
         }
         replace(`${pathname}?${params.toString()}`)
-    }, 100)
+    }, 300)
 
     return (
         <>
