@@ -4,7 +4,7 @@ import { getDerpysByCluster, getDescription_By_ClusterAndAttr, getOriginal_MainN
 import AscensionsClientPage from "./client-page";
 
 type ICluster_Order = {
-    [key in Aspects]: string[]
+    [key: string]: string[]
 }
 
 const CLUSTER_ORDER: ICluster_Order = {
@@ -78,7 +78,6 @@ const CLUSTER_ORDER: ICluster_Order = {
         "The Goddess",
         "Hope",
     ],
-    [Aspects.Default]: []
 }
 
 export interface ISubNode {
@@ -95,16 +94,12 @@ export interface IMainNode {
     _subnodesFlat: ISubNode[]
 }
 
-export interface IClusterNodes {
-    [key: string]: IMainNode
-}
-
 export interface IClusterData {
     title: string,
     description: string,
     rewards: string,
     aspect: string,
-    nodes: IClusterNodes,
+    nodes: { [key: string]: IMainNode },
     _nodesFlat: IMainNode[]
 }
 
@@ -115,11 +110,11 @@ export interface AscensionData {
 async function getAscensionsData() {
 
     const ascensionsData: AscensionData = {
-        "Force": [],
-        "Entropy": [],
-        "Form": [],
-        "Inertia": [],
-        "Life": []
+        [Aspects.Force]: [],
+        [Aspects.Entropy]: [],
+        [Aspects.Form]: [],
+        [Aspects.Inertia]: [],
+        [Aspects.Life]: []
     };
 
     for (const aspectStr in CLUSTER_ORDER) {
@@ -127,7 +122,7 @@ async function getAscensionsData() {
         const aspect = stringToAspect[aspectStr]
 
         for (const cluster of CLUSTER_ORDER[aspect]) {
-            const nodes: IClusterNodes = {};
+            const nodes: { [key: string]: IMainNode } = {};
 
             const mainNodes = await getOriginal_MainNodes_By_Cluster(cluster);
             mainNodes.forEach(e => {
@@ -202,8 +197,6 @@ export default async function AscensionsHome() {
     const ascensionsData = await getAscensionsData();
 
     return (
-        <>
-            <AscensionsClientPage ascensionsData={ascensionsData} />
-        </>
+        <AscensionsClientPage ascensionsData={ascensionsData} />
     )
 }
