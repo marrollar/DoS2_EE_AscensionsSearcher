@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./client
+        working-directory: client
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          working-directory: ./client
+          cache-dependency-path: client/package-lock.json
           node-version: "lts/*"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
 
@@ -66,7 +66,7 @@ jobs:
       - name: Restore cache
         uses: actions/cache@v4
         with:
-          working-directory: ./client
+          working-directory: client
           path: |
             .next/cache
           # Generate a new cache whenever packages or source files change.
@@ -84,7 +84,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          working-directory: ./client
+          working-directory: client
           path: ./out
 
   # Deployment job
