@@ -72,12 +72,16 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
         if (term) {
             params.set("query", term);
 
-            const fuseSearch = fuse.search(term)
+            const fuseSearch = fuse.search(term).sort((a, b) => {
+                if (a.refIndex < b.refIndex) return -1;
+                if (a.refIndex > b.refIndex) return 1;
+                return 0;
+            })
+
             const filteredAsc: IClusterData[] = []
             fuseSearch.forEach((e) => {
                 filteredAsc.push(e.item)
             })
-            filteredAsc.reverse()
 
             setFilteredAscensions(fattenAscensions(filteredAsc))
 
