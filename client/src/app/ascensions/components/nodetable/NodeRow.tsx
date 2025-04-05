@@ -2,7 +2,7 @@ import { SubNodesDivider, MainNodeDivider, SubNodeRow } from "@/app/ascensions/c
 import { ISubNode } from "@/app/ascensions/page";
 import * as cheerio from "cheerio";
 import { useContext } from "react";
-import { ClusterContext } from "../clusterbox/ClusterBox";
+import { ClusterCtx } from "../clusterbox/ClusterBox";
 
 export default function NodeRow({ mainNode, subNodes, implicit }:
     Readonly<{
@@ -11,7 +11,8 @@ export default function NodeRow({ mainNode, subNodes, implicit }:
         implicit: string
     }>) {
 
-    const clusterCtx = useContext(ClusterContext)
+    const clusterCtx = useContext(ClusterCtx)
+    const parentKey = clusterCtx.aspect + clusterCtx.clusterName + clusterCtx.mainNodeID
 
     let implicitClean = ""
     if (implicit.length > 0) {
@@ -46,7 +47,7 @@ export default function NodeRow({ mainNode, subNodes, implicit }:
                                 }
 
                                 return (
-                                    <tr key={clusterCtx + subNodeID} className={`${myColorId ? "bg-gray-800" : "bg-gray-700"}`}>
+                                    <tr key={parentKey + subNodeID} className={`${myColorId ? "bg-gray-800" : "bg-gray-700"}`}>
                                         <SubNodeRow subNodes={subNodes[subNodeID]} isFirst={subNodeID === "0"} />
                                     </tr>
                                 )

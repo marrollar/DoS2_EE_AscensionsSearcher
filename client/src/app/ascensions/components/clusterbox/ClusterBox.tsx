@@ -1,5 +1,5 @@
 import { IClusterData } from "@/app/ascensions/page"
-import { Aspect_Txt_Color } from "@/types"
+import { Aspect_Txt_Color, Aspects } from "@/types"
 import * as cheerio from "cheerio"
 import { createContext, useContext } from "react"
 import { AspectContext } from "../../client-page"
@@ -8,7 +8,13 @@ import ClusterDescription from "./ClusterDescription"
 import ClusterRequirementRewards from "./ClusterRequirementRewards"
 import ClusterTitle from "./ClusterTitle"
 
-export const ClusterContext = createContext("");
+type ClusterCtxType = {
+    aspect: Aspects,
+    clusterName: string,
+    mainNodeID: string
+}
+
+export const ClusterCtx = createContext<ClusterCtxType>(null!);
 
 export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData }>) {
     const aspect = useContext(AspectContext)
@@ -31,13 +37,17 @@ export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData
             {
                 Object.keys(cluster_Nodes).map((mainNodeID) => (
                     <div key={aspect + cluster_Name + mainNodeID}>
-                        <ClusterContext value={aspect + cluster_Name + mainNodeID}>
+                        <ClusterCtx value={{
+                            aspect: aspect,
+                            clusterName: cluster_Name,
+                            mainNodeID: mainNodeID
+                        }}>
                             <NodeRow
                                 mainNode={mainNodeID}
                                 subNodes={cluster_Nodes[mainNodeID].subnodes}
                                 implicit={cluster_Nodes[mainNodeID].hasImplicit ? cluster_Nodes[mainNodeID].description : ""}
                             />
-                        </ClusterContext>
+                        </ClusterCtx>
                     </div>
                 ))
             }
