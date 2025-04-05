@@ -7,7 +7,7 @@ import Fuse from "fuse.js";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { AscensionData } from "./page";
+import { AscensionData, IClusterData } from "./page";
 
 export const AspectContext = createContext(Aspects.Default);
 
@@ -34,21 +34,27 @@ const FuseOptions = {
     ]
 };
 
+function fattenAscensions(flattenedAscensions: IClusterData[]) {
+    const fattenedAscensions: AscensionData = {
+        [Aspects.Force]: [],
+        [Aspects.Entropy]: [],
+        [Aspects.Form]: [],
+        [Aspects.Inertia]: [],
+        [Aspects.Life]: []
+    };
+
+    flattenedAscensions.forEach((cluster) => {
+        fattenedAscensions[cluster.aspect].push(cluster)
+    })
+
+    return fattenedAscensions
+}
+
 export default function AscensionsClientPage({ ascensionsData }: Readonly<{ ascensionsData: AscensionData }>) {
 
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-
-    const handleSearchChange = useDebouncedCallback((term) => {
-        const params = new URLSearchParams(searchParams)
-        if (term) {
-            params.set("query", term);
-        } else {
-            params.delete("query");
-        }
-        replace(`${pathname}?${params.toString()}`)
-    }, 300)
 
     const ascensionsFlat = [
         ...ascensionsData[Aspects.Force],
@@ -59,10 +65,28 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
     ]
 
     const fuse = new Fuse(ascensionsFlat, FuseOptions);
-    const [filteredAscensions, setFilteredAscensions] = useState(ascensionsFlat);
+    const [filteredAscensions, setFilteredAscensions] = useState(ascensionsData);
 
-    // const filteredAscensions = fuse.search(term)
-    // console.log(filteredAscensions)
+    const handleSearchChange = useDebouncedCallback((term) => {
+        const params = new URLSearchParams(searchParams)
+        if (term) {
+            params.set("query", term);
+
+            const fuseSearch = fuse.search(term)
+            const filteredAsc: IClusterData[] = []
+            fuseSearch.forEach((e) => {
+                filteredAsc.push(e.item)
+            })
+            filteredAsc.reverse()
+
+            setFilteredAscensions(fattenAscensions(filteredAsc))
+
+        } else {
+            params.delete("query");
+            setFilteredAscensions(ascensionsData)
+        }
+        replace(`${pathname}?${params.toString()}`)
+    }, 100)
 
     return (
         <>
@@ -71,23 +95,23 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
                 defaultValue={searchParams.get("query")?.toString()}
             />
             <AspectContext value={Aspects.Force}>
-                <AspectBox clusters={ascensionsData[Aspects.Force]}></AspectBox>
+                <AspectBox clusters={filteredAscensions[Aspects.Force]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Entropy}>
-                <AspectBox clusters={ascensionsData[Aspects.Entropy]}></AspectBox>
+                <AspectBox clusters={filteredAscensions[Aspects.Entropy]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Force}>
-                <AspectBox clusters={ascensionsData[Aspects.Form]}></AspectBox>
+                <AspectBox clusters={filteredAscensions[Aspects.Form]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Inertia}>
-                <AspectBox clusters={ascensionsData[Aspects.Inertia]}></AspectBox>
+                <AspectBox clusters={filteredAscensions[Aspects.Inertia]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Life}>
-                <AspectBox clusters={ascensionsData[Aspects.Life]}></AspectBox>
+                <AspectBox clusters={filteredAscensions[Aspects.Life]}></AspectBox>
             </AspectContext>
 
         </>
