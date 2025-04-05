@@ -25,6 +25,7 @@ EE_KEY_WORDS = [
     "Violent Strikes",
     "Occultist",
     "Vitality Void",
+    "Withered",
     "Wither",
     "Abeyance",
     "Adaptation",
