@@ -21,9 +21,12 @@ export function MainNodeDivider({ name, __html }: Readonly<{ name: string, __htm
 export function SubNodesDivider({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <td className="w-3/4 border border-gray-500">
-            <br />
             <table className="w-[100%] border-collapse">
                 <tbody>
+                    <tr>
+                        <td className="w-[50%] px-2 py-1  border-r border-gray-500 align-top " > <br/></td>
+                        <td className="w-[50%] px-2 py-1  border-gray-500 align-top" />
+                    </tr>
                     {children}
                 </tbody>
             </table>
