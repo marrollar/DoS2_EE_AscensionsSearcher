@@ -54,20 +54,19 @@ jobs:
           fi
 
       - name: Setup Node
-        working-directory: ./client
         uses: actions/setup-node@v4
         with:
+          working-directory: ./client
           node-version: "lts/*"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
 
       - name: Setup Pages
-        working-directory: ./client
         uses: actions/configure-pages@v4
 
       - name: Restore cache
-        working-directory: ./client
         uses: actions/cache@v4
         with:
+          working-directory: ./client
           path: |
             .next/cache
           # Generate a new cache whenever packages or source files change.
@@ -83,9 +82,9 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
       - name: Upload artifact
-        working-directory: ./client
         uses: actions/upload-pages-artifact@v3
         with:
+          working-directory: ./client
           path: ./out
 
   # Deployment job
