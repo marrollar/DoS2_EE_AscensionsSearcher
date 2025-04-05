@@ -2,6 +2,7 @@
 import { Aspects, stringToAspect } from "@/types";
 import { getDerpysByCluster, getDescription_By_ClusterAndAttr, getOriginal_MainNodes_By_Cluster, getOriginal_SubNodes_By_Cluster } from "../../../db/queries";
 import AscensionsClientPage from "./client-page";
+import { Suspense } from "react";
 
 type ICluster_Order = {
     [key: string]: string[]
@@ -195,8 +196,13 @@ async function getAscensionsData() {
 export default async function AscensionsHome() {
 
     const ascensionsData = await getAscensionsData();
-
+    // TODO: Make proper skeleton for this suspense
     return (
-        <AscensionsClientPage ascensionsData={ascensionsData} />
+        <Suspense>
+            <AscensionsClientPage ascensionsData={ascensionsData} />
+        </Suspense>
+
+
+
     )
 }
