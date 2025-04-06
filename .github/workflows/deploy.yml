@@ -76,7 +76,10 @@ jobs:
 
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-
+      
+      - name: Set environment variables
+        run: |
+              echo "NEXT_PUBLIC_BASE_PATH=DoS2_EE_AscensionsSearcher/ >> .env"
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
@@ -87,8 +90,6 @@ jobs:
 
   # Deployment job
   deploy:
-    env:
-      BASE_PATH: ${{vars.BASE_PATH}}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
