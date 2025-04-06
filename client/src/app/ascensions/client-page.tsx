@@ -2,12 +2,13 @@
 
 import AspectBox from "@/app/ascensions/components/aspectbox/AspectBox";
 import SearchBar from "@/app/components/SearchBar";
-import { Aspects } from "@/types";
+import { Aspects } from "@/app/types";
 import Fuse from "fuse.js";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { AscensionData, IClusterData } from "./page";
+import { AscensionData } from "../types";
+import { IClusterData } from "../types";
 
 export const AspectContext = createContext(Aspects.Default);
 
@@ -90,7 +91,7 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
             setFilteredAscensions(ascensionsData)
         }
         replace(`${pathname}?${params.toString()}`)
-    }, 300)
+    }, 100)
 
     return (
         <>

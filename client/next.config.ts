@@ -1,15 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/ascensions',
-        permanent: true,
-      },
-    ]
-  },
   /**
    * Enable static exports.
    *
@@ -22,7 +13,7 @@ const nextConfig: NextConfig = {
    *
    * @see https://nextjs.org/docs/app/api-reference/next-config-js/basePath
    */
-  basePath: "/nextjs-github-pages",
+  basePath: "",
 
   /**
    * Disable server-based image optimization. Next.js does not support

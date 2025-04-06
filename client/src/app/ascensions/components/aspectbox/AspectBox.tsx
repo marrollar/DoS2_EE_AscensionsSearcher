@@ -1,6 +1,6 @@
 "use client"
 
-import { IClusterData } from "@/app/ascensions/page";
+import { IClusterData } from "@/app/types";
 import { useContext } from "react";
 import { AspectContext } from "../../client-page";
 import AspectHeader from "./AspectHeader";

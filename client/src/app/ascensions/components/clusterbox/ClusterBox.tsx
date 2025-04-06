@@ -1,5 +1,5 @@
-import { IClusterData } from "@/app/ascensions/page"
-import { Aspect_Txt_Color, Aspects } from "@/types"
+import { IClusterData } from "@/app/types"
+import { Aspect_Txt_Color, Aspects } from "@/app/types"
 import * as cheerio from "cheerio"
 import { createContext, useContext } from "react"
 import { AspectContext } from "../../client-page"

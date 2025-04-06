@@ -12,7 +12,7 @@ export default function NavBar() {
 
                 <button
                     className={`text-white px-2 mx-2 hover:underline rounded-lg hover:cursor-pointer ${current_route === "/ascensions" ? 'bg-blue-800' : ''}`}
-                    onClick={() => router.push("/ascensions")}
+                    onClick={() => router.push("/")}
                 >
                     Ascensions
                 </button>

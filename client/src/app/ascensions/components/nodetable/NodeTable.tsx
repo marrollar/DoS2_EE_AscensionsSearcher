@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio";
 import { useSearchParams } from "next/navigation";
 import { useContext } from "react";
-import { ISubNode } from "../../page";
+import { ISubNode } from "@/app/types";
 import { ClusterCtx } from "../clusterbox/ClusterBox";
 
 export function MainNodeDivider({ name, __html }: Readonly<{ name: string, __html: string }>) {

@@ -1,4 +1,4 @@
-import { Aspects } from "@/types";
+import { Aspects } from "@/app/types";
 import prismaClient from "./client";
 
 export async function getAllOriginalNodes() {

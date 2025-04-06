@@ -1,5 +1,5 @@
 import { SubNodesDivider, MainNodeDivider, SubNodeRow } from "@/app/ascensions/components/nodetable/NodeTable";
-import { ISubNode } from "@/app/ascensions/page";
+import { ISubNode } from "@/app/types";
 import * as cheerio from "cheerio";
 import { useContext } from "react";
 import { ClusterCtx } from "../clusterbox/ClusterBox";

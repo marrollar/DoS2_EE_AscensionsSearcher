@@ -1,4 +1,4 @@
-import { Aspects } from "@/types"
+import { Aspects } from "@/app/types"
 import { useContext } from "react"
 import { AspectContext } from "../../client-page"
 import styles from "./AspectColors.module.css"
