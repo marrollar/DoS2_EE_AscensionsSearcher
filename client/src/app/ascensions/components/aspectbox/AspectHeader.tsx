@@ -14,7 +14,7 @@ export default function AspectHeader({ children }: Readonly<{ children: React.Re
     )
 
     return (
-        <div className={`w-[100%] my-1 px-2 pb-2 ${header_BG_Color}`}>
+        <div className={`w-[100%] mb-1 px-2 pb-2 rounded-lg ${header_BG_Color}`}>
             <p className="text-2xl py-3">
                 {aspect}
             </p>

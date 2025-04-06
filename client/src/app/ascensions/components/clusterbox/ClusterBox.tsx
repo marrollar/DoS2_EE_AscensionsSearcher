@@ -60,7 +60,7 @@ export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchP
     const showCluster = titleIsSearch || subNodesWithSearchStr.length > 0 || searchParams === ""
 
     return (
-        <div className={`bg-[#202020] mt-4 px-2 pb-3 ${showCluster ? "" : "hidden"}`}>
+        <div id={$title.text().replaceAll(" ", "")} className={`bg-[#202020] mt-4 px-2 pb-3 scroll-m-38 ${showCluster ? "" : "hidden"}`}>
             <ClusterTitle __html={clusterName} />
             <ClusterDescription desc={clusterMainDescription} />
             <ClusterRequirementRewards requirements={reqRew_parts[0]} rewards={reqRew_parts[1]} />

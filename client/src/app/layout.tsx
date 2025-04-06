@@ -20,13 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} antialiased`}
-      >
+      <body className={`${inter.variable} antialiased`}>
         <Header />
-        <div className="flex flex-col w-[100%] max-w-[1100px] mx-auto my-2 px-1 py-1 rounded-lg shadow-md bg-gray-700">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );

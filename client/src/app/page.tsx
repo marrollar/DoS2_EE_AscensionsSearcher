@@ -1,7 +1,9 @@
 
 import { getDerpysByCluster, getDescription_By_ClusterAndAttr, getOriginal_MainNodes_By_Cluster, getOriginal_SubNodes_By_Cluster } from "@/app/db/queries";
 import { AscensionData, Aspects, CLUSTER_ORDER, IClusterData, IMainNode, stringToAspect } from "@/app/types";
+import { Suspense } from "react";
 import AscensionsClientPage from "./ascensions/client-page";
+import SideBar from "./components/SideBar";
 
 async function getAscensionsData() {
 
@@ -93,6 +95,11 @@ export default async function AscensionsHome() {
     const ascensionsData = await getAscensionsData();
     // TODO: Make proper skeleton for this suspense
     return (
-        <AscensionsClientPage ascensionsData={ascensionsData} />
+        <Suspense>
+            <div className="flex flex-col w-[60%] max-w-[1100px] mx-auto my-2 px-1 py-1 rounded-lg shadow-md bg-gray-700">
+                <SideBar ascensionsData={ascensionsData} />
+                <AscensionsClientPage ascensionsData={ascensionsData} />
+            </div>
+        </Suspense>
     )
 }

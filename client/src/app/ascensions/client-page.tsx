@@ -1,11 +1,10 @@
 "use client"
 
 import AspectBox from "@/app/ascensions/components/aspectbox/AspectBox";
-import SearchBar from "@/app/components/SearchBar";
 import { Aspects } from "@/app/types";
-import { createContext, Suspense, useState } from "react";
-import { AscensionData } from "../types";
 import { useSearchParams } from "next/navigation";
+import { createContext } from "react";
+import { AscensionData } from "../types";
 
 export const AspectContext = createContext(Aspects.Default);
 
@@ -75,7 +74,7 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
                 <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Entropy]}></AspectBox>
             </AspectContext>
 
-            <AspectContext value={Aspects.Force}>
+            <AspectContext value={Aspects.Form}>
                 <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Form]}></AspectBox>
             </AspectContext>
 
@@ -86,7 +85,6 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
             <AspectContext value={Aspects.Life}>
                 <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Life]}></AspectBox>
             </AspectContext>
-
         </>
     )
 

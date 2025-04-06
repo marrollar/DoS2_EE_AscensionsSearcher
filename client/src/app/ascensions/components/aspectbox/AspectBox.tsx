@@ -17,7 +17,7 @@ export default function AspectBox({
         <div className="">
             <AspectHeader>
                 {
-                    clusters.slice(0,1).map((c) => (
+                    clusters.map((c) => (
                         <div key={aspect + c.title}>
                             <ClusterBox searchParams={searchParams} cluster={c} />
                         </div>
