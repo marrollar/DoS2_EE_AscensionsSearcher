@@ -1,12 +1,10 @@
 "use client"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-
 import { useDebouncedCallback } from "use-debounce";
 
 export default function SearchBar() {
-    const [searchParams, setSearchParams] = useState("");
+    const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
 
@@ -14,10 +12,8 @@ export default function SearchBar() {
         const params = new URLSearchParams(searchParams)
         if (term) {
             params.set("query", term);
-            setSearchParams(term)
         } else {
             params.delete("query");
-            setSearchParams("")
         }
         replace(`${pathname}?${params.toString()}`)
     }, 100)
@@ -28,7 +24,7 @@ export default function SearchBar() {
             onChange={(e) => { handleSearchChange(e.target.value) }}
             className="mx-4 my-4 px-2 py-2 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Keyword search..."
-            defaultValue={""}
+            defaultValue={searchParams.get('query')?.toString()}
         >
         </input>
     )
