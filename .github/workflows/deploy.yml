@@ -78,6 +78,8 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
       - name: Build with Next.js
+        env:
+          NEXT_PUBLIC_BASE_PATH: /DoS2_EE_AscensionsSearcher
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
       - name: Upload artifact
@@ -87,8 +89,6 @@ jobs:
 
   # Deployment job
   deploy:
-    env:
-      BASE_PATH: ${{vars.BASE_PATH}}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

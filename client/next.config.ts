@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
    *
    * @see https://nextjs.org/docs/app/api-reference/next-config-js/basePath
    */
-  basePath: process.env.BASE_PATH,
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH,
 
   /**
    * Disable server-based image optimization. Next.js does not support
