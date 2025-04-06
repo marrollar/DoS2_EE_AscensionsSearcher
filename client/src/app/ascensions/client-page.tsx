@@ -5,6 +5,7 @@ import SearchBar from "@/app/components/SearchBar";
 import { Aspects } from "@/app/types";
 import { createContext, Suspense, useState } from "react";
 import { AscensionData } from "../types";
+import { useSearchParams } from "next/navigation";
 
 export const AspectContext = createContext(Aspects.Default);
 
@@ -48,9 +49,11 @@ export const AspectContext = createContext(Aspects.Default);
 // }
 
 export default function AscensionsClientPage({ ascensionsData }: Readonly<{ ascensionsData: AscensionData }>) {
-    const [searchParams, setSearchParams] = useState("");
-
-
+    const usp = useSearchParams();
+    let searchParams = usp.get("query")
+    if (searchParams === null) {
+        searchParams = ""
+    }
     // const ascensionsFlat = [
     //     ...ascensionsData[Aspects.Force],
     //     ...ascensionsData[Aspects.Entropy],
@@ -64,10 +67,6 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
 
     return (
         <>
-            <Suspense>
-                <SearchBar setSearchParams={setSearchParams} />
-            </Suspense>
-
             <AspectContext value={Aspects.Force}>
                 <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Force]}></AspectBox>
             </AspectContext>

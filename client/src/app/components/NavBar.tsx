@@ -7,11 +7,11 @@ export default function NavBar() {
     const current_route = usePathname();
 
     return (
-        <nav className=" py-2 bg-gray-900 rounded-lg shadow-md">
-            <div className="flex justify-normal items-center">
+        <nav className={`py-2 bg-gray-900 rounded-lg transition-all`}>
+            <div className={`flex justify-normal items-center`}>
 
                 <button
-                    className={`text-white px-2 mx-2 hover:underline rounded-lg hover:cursor-pointer ${current_route === "/ascensions" ? 'bg-blue-800' : ''}`}
+                    className={`text-white px-2 mx-2 hover:underline rounded-lg hover:cursor-pointer ${current_route === "/" ? 'bg-blue-800' : ''}`}
                     onClick={() => router.push("/")}
                 >
                     Ascensions
