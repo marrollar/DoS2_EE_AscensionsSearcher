@@ -1,11 +1,12 @@
-import { SubNodesDivider, MainNodeDivider, SubNodeRow } from "@/app/ascensions/components/nodetable/NodeTable";
+import { MainNodeDivider, SubNodeRow, SubNodesDivider } from "@/app/ascensions/components/nodetable/NodeTable";
 import { ISubNode } from "@/app/types";
 import * as cheerio from "cheerio";
 import { useContext } from "react";
 import { ClusterCtx } from "../clusterbox/ClusterBox";
 
-export default function NodeRow({ mainNode, subNodes, implicit }:
+export default function NodeRow({ searchParams, mainNode, subNodes, implicit }:
     Readonly<{
+        searchParams: string,
         mainNode: string,
         subNodes: { [key: string]: ISubNode },
         implicit: string
@@ -35,7 +36,7 @@ export default function NodeRow({ mainNode, subNodes, implicit }:
             <table className="w-[100%] table-fixed border-collapse">
                 <tbody>
                     <tr className={parseInt(mainNode) % 2 == 0 ? "bg-gray-700" : "bg-gray-800"}>
-                        <MainNodeDivider name={mainNode} __html={implicitClean} />
+                        <MainNodeDivider searchParams={searchParams} name={mainNode} __html={implicitClean} />
                         <SubNodesDivider>
                             {Object.keys(subNodes).map((subNodeID) => {
 
@@ -48,7 +49,7 @@ export default function NodeRow({ mainNode, subNodes, implicit }:
 
                                 return (
                                     <tr key={parentKey + subNodeID} className={`${myColorId ? "bg-gray-800" : "bg-gray-700"}`}>
-                                        <SubNodeRow subNodes={subNodes[subNodeID]} isFirst={subNodeID === "0"} />
+                                        <SubNodeRow searchParams={searchParams} subNodes={subNodes[subNodeID]} isFirst={subNodeID === "0"} />
                                     </tr>
                                 )
                             })}

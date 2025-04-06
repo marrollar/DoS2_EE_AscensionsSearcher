@@ -1,20 +1,16 @@
-import * as cheerio from "cheerio";
-import { useSearchParams } from "next/navigation";
-import { useContext } from "react";
 import { ISubNode } from "@/app/types";
+import * as cheerio from "cheerio";
+import { useContext } from "react";
 import { ClusterCtx } from "../clusterbox/ClusterBox";
 
-export function MainNodeDivider({ name, __html }: Readonly<{ name: string, __html: string }>) {
+export function MainNodeDivider({ searchParams, name, __html }: Readonly<{ searchParams: string, name: string, __html: string }>) {
     const clusterCtx = useContext(ClusterCtx);
 
-    const searchParams = useSearchParams();
-    const searchString = searchParams.get("query")?.toString().toLowerCase()
-
     const $html = cheerio.load(__html)
-    const hasSearchString = $html.text().toLowerCase().includes(searchString ? searchString : "")
+    const hasSearchString = $html.text().toLowerCase().includes(searchParams)
 
     const $cName = cheerio.load(clusterCtx.clusterName)
-    const titleIsSearch = $cName.text().toLowerCase().includes(searchString ? searchString : "")
+    const titleIsSearch = $cName.text().toLowerCase().includes(searchParams)
 
     return (
         <td className="w-1/4 px-4 py-2 border border-gray-500 text-center align-top">
@@ -41,23 +37,24 @@ export function SubNodesDivider({ children }: Readonly<{ children: React.ReactNo
     )
 }
 
-export function SubNodeRow({ subNodes, isFirst }: Readonly<{ subNodes: ISubNode, isFirst: boolean }>) {
+export function SubNodeRow({ searchParams, subNodes, isFirst }: Readonly<{
+    searchParams: string,
+    subNodes: ISubNode,
+    isFirst: boolean
+}>) {
     const clusterCtx = useContext(ClusterCtx);
 
-    const searchParams = useSearchParams();
-    const searchString = searchParams.get("query")?.toString().toLowerCase()
-
     const $og = cheerio.load(subNodes.original)
-    const ogHasSearchString = $og.text().toLowerCase().includes(searchString ? searchString : "")
+    const ogHasSearchString = $og.text().toLowerCase().includes(searchParams)
 
-    let derpysHasSearchString = true
+    let derpysHasSearchString = false
     if (subNodes.derpys) {
         const $derpys = cheerio.load(subNodes.derpys)
-        derpysHasSearchString = $derpys.text().toLowerCase().includes(searchString ? searchString : "")
+        derpysHasSearchString = $derpys.text().toLowerCase().includes(searchParams)
     }
 
     const $cName = cheerio.load(clusterCtx.clusterName)
-    const titleIsSearch = $cName.text().toLowerCase().includes(searchString ? searchString : "")
+    const titleIsSearch = $cName.text().toLowerCase().includes(searchParams)
 
     return (
         <>
