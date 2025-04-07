@@ -72,7 +72,8 @@ async function getAscensionsData() {
             });
 
             const data: IClusterData = {
-                title: (await getDescription_By_ClusterAndAttr(cluster, "Title"))["description"],
+                id: cluster.replaceAll(" ", ""),
+                name: cluster,
                 description: (await getDescription_By_ClusterAndAttr(cluster, "Desc"))["description"],
                 rewards: (await getDescription_By_ClusterAndAttr(cluster, "Rewards"))["description"],
                 aspect: aspect,

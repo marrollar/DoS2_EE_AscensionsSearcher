@@ -1,17 +1,10 @@
-import { Aspects } from "@/app/types"
+import { aspectToBGCSS } from "@/app/utils"
 import { useContext } from "react"
 import { AspectContext } from "../../client-page"
-import styles from "./AspectColors.module.css"
 
 export default function AspectHeader({ children }: Readonly<{ children: React.ReactNode }>) {
     const aspect = useContext(AspectContext)
-    const header_BG_Color = (
-        aspect === Aspects.Force ? styles.force_bg_color :
-            aspect === Aspects.Life ? styles.life_bg_color :
-                aspect === Aspects.Entropy ? styles.entropy_bg_color :
-                    aspect === Aspects.Form ? styles.form_bg_color :
-                        aspect === Aspects.Inertia ? styles.inertia_bg_color : ""
-    )
+    const header_BG_Color = aspectToBGCSS(aspect)
 
     return (
         <div className={`w-[100%] mb-1 px-2 pb-2 rounded-lg ${header_BG_Color}`}>

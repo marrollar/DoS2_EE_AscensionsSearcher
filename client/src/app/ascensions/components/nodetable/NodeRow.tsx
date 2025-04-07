@@ -3,17 +3,20 @@ import { ISubNode } from "@/app/types";
 import * as cheerio from "cheerio";
 import { useContext } from "react";
 import { ClusterCtx } from "../clusterbox/ClusterBox";
+import { AspectContext } from "../../client-page";
 
-export default function NodeRow({ searchParams, mainNode, subNodes, implicit }:
+export default function NodeRow({ searchParams, subNodes, implicit }:
     Readonly<{
         searchParams: string,
-        mainNode: string,
         subNodes: { [key: string]: ISubNode },
         implicit: string
     }>) {
 
+    const aspect = useContext(AspectContext)
     const clusterCtx = useContext(ClusterCtx)
-    const parentKey = clusterCtx.aspect + clusterCtx.clusterName + clusterCtx.mainNodeID
+
+    const parentKey = aspect + clusterCtx.clusterName + clusterCtx.mainNodeID
+    const mainNID = parseInt(clusterCtx.mainNodeID, 10)
 
     let implicitClean = ""
     if (implicit.length > 0) {
@@ -35,12 +38,12 @@ export default function NodeRow({ searchParams, mainNode, subNodes, implicit }:
         <div className="overflow-x-auto px-4">
             <table className="w-[100%] table-fixed border-collapse">
                 <tbody>
-                    <tr className={parseInt(mainNode) % 2 == 0 ? "bg-gray-700" : "bg-gray-800"}>
-                        <MainNodeDivider searchParams={searchParams} name={mainNode} __html={implicitClean} />
+                    <tr className={mainNID % 2 == 0 ? "bg-gray-700" : "bg-gray-800"}>
+                        <MainNodeDivider searchParams={searchParams} name={clusterCtx.mainNodeID} __html={implicitClean} />
                         <SubNodesDivider>
                             {Object.keys(subNodes).map((subNodeID) => {
 
-                                const parentColorId = parseInt(mainNode) % 2
+                                const parentColorId = mainNID % 2
                                 let myColorId = parseInt(subNodeID) % 2 == 0
 
                                 if (parentColorId == 0) {

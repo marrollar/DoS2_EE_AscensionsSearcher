@@ -1,15 +1,13 @@
-import { Aspect_Txt_Color, Aspects, IClusterData } from "@/app/types"
-import * as cheerio from "cheerio"
+import { IClusterData } from "@/app/types"
+import Fuse from "fuse.js"
 import { createContext, useContext } from "react"
 import { AspectContext } from "../../client-page"
 import NodeRow from "../nodetable/NodeRow"
 import ClusterDescription from "./ClusterDescription"
 import ClusterRequirementRewards from "./ClusterRequirementRewards"
 import ClusterTitle from "./ClusterTitle"
-import Fuse from "fuse.js"
 
 type ClusterCtxType = {
-    aspect: Aspects,
     clusterName: string,
     mainNodeID: string
 }
@@ -41,9 +39,6 @@ const FuseOptions = {
 export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchParams: string, cluster: IClusterData }>) {
     const aspect = useContext(AspectContext)
 
-    const $title = cheerio.load(cluster.title)
-    $title("font").attr("color", Aspect_Txt_Color[aspect].slice(1))
-    const clusterName = $title.html()
     const clusterMainDescription = cluster.description
     const clusterNodes = cluster.nodes
 
@@ -51,7 +46,7 @@ export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchP
     clusterReqRew = clusterReqRew.replace("Requires:", "Required:").replace("Completion grants:", "Completion:").replaceAll("<br>", "")
     const reqRew_parts = clusterReqRew.split(".")
 
-    const titleIsSearch = $title.text().toLowerCase().includes(searchParams.toLowerCase())
+    const titleIsSearch = cluster.name.toLowerCase().includes(searchParams.toLowerCase())
 
     const flattenedSubNodes = Object.values(clusterNodes)
     const fuse = new Fuse(flattenedSubNodes, FuseOptions);
@@ -60,21 +55,19 @@ export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchP
     const showCluster = titleIsSearch || subNodesWithSearchStr.length > 0 || searchParams === ""
 
     return (
-        <div id={$title.text().replaceAll(" ", "")} className={`bg-[#202020] mt-4 px-2 pb-3 scroll-m-38 ${showCluster ? "" : "hidden"}`}>
-            <ClusterTitle __html={clusterName} />
+        <div id={cluster.id} className={`bg-[#202020] mt-4 px-2 pb-3 scroll-m-38 ${showCluster ? "" : "hidden"}`}>
+            <ClusterTitle clusterName={cluster.name} />
             <ClusterDescription desc={clusterMainDescription} />
             <ClusterRequirementRewards requirements={reqRew_parts[0]} rewards={reqRew_parts[1]} />
             {
                 Object.keys(clusterNodes).map((mainNodeID) => (
-                    <div key={aspect + clusterName + mainNodeID}>
+                    <div key={aspect + cluster.name + mainNodeID}>
                         <ClusterCtx value={{
-                            aspect: aspect,
-                            clusterName: clusterName,
+                            clusterName: cluster.name,
                             mainNodeID: mainNodeID
                         }}>
                             <NodeRow
                                 searchParams={searchParams}
-                                mainNode={mainNodeID}
                                 subNodes={clusterNodes[mainNodeID].subnodes}
                                 implicit={clusterNodes[mainNodeID].hasImplicit ? clusterNodes[mainNodeID].description : ""}
                             />

@@ -6,11 +6,8 @@ import { ClusterCtx } from "../clusterbox/ClusterBox";
 export function MainNodeDivider({ searchParams, name, __html }: Readonly<{ searchParams: string, name: string, __html: string }>) {
     const clusterCtx = useContext(ClusterCtx);
 
-    const $html = cheerio.load(__html)
-    const hasSearchString = $html.text().toLowerCase().includes(searchParams)
-
-    const $cName = cheerio.load(clusterCtx.clusterName)
-    const titleIsSearch = $cName.text().toLowerCase().includes(searchParams)
+    const hasSearchString = cheerio.load(__html).text().toLowerCase().includes(searchParams)
+    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchParams)
 
     return (
         <td className="w-1/4 px-4 py-2 border border-gray-500 text-center align-top">
@@ -44,17 +41,14 @@ export function SubNodeRow({ searchParams, subNodes, isFirst }: Readonly<{
 }>) {
     const clusterCtx = useContext(ClusterCtx);
 
-    const $og = cheerio.load(subNodes.original)
-    const ogHasSearchString = $og.text().toLowerCase().includes(searchParams)
+    const ogHasSearchString = cheerio.load(subNodes.original).text().toLowerCase().includes(searchParams)
 
     let derpysHasSearchString = false
     if (subNodes.derpys) {
-        const $derpys = cheerio.load(subNodes.derpys)
-        derpysHasSearchString = $derpys.text().toLowerCase().includes(searchParams)
+        derpysHasSearchString = cheerio.load(subNodes.derpys).text().toLowerCase().includes(searchParams)
     }
 
-    const $cName = cheerio.load(clusterCtx.clusterName)
-    const titleIsSearch = $cName.text().toLowerCase().includes(searchParams)
+    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchParams)
 
     return (
         <>

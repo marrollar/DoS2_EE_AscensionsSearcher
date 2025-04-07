@@ -121,7 +121,8 @@ export interface IMainNode {
     _subnodesFlat: ISubNode[];
 }
 export interface IClusterData {
-    title: string;
+    id:string,
+    name: string;
     description: string;
     rewards: string;
     aspect: string;
