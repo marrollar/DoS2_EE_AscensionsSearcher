@@ -81,6 +81,8 @@ jobs:
         run: |
               echo "NEXT_PUBLIC_BASE_PATH=DoS2_EE_AscensionsSearcher/ >> .env"
       - name: Build with Next.js
+        env:
+          NEXT_PUBLIC_BASE_PATH: /DoS2_EE_AscensionsSearcher
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
       - name: Upload artifact
