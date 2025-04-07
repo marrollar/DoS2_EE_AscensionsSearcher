@@ -31,7 +31,7 @@ export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: A
     })
 
     return (
-        <div className={`fixed w-[10%] p-1 min-w-[200px] translate-x-[calc(-100%-8px)] translate-y-[-4px] h-[50%] bg-gray-700 rounded-lg overflow-scroll`}>
+        <div className={`fixed w-[10%] p-1 min-w-[200px] translate-x-[calc(-100%-8px)] translate-y-[-4px] h-[50%] bg-gray-700 rounded-lg overflow-y-scroll`}>
             <div className="bg-gray-800 px-2 rounded-lg ">
                 <p className="text-2xl py-3">Clusters</p>
                 <hr className="border-t border-gray-300/25" />
