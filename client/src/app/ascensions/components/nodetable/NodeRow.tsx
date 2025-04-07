@@ -2,8 +2,8 @@ import { MainNodeDivider, SubNodeRow, SubNodesDivider } from "@/app/ascensions/c
 import { ISubNode } from "@/app/types";
 import * as cheerio from "cheerio";
 import { useContext } from "react";
-import { ClusterCtx } from "../clusterbox/ClusterBox";
 import { AspectContext } from "../../client-page";
+import { ClusterCtx } from "../clusterbox/ClusterBox";
 
 export default function NodeRow({ searchParams, subNodes, implicit }:
     Readonly<{

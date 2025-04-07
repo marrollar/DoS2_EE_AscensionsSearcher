@@ -2,12 +2,17 @@ import { ISubNode } from "@/app/types";
 import * as cheerio from "cheerio";
 import { useContext } from "react";
 import { ClusterCtx } from "../clusterbox/ClusterBox";
+import { useQueryState } from "nuqs";
 
 export function MainNodeDivider({ searchParams, name, __html }: Readonly<{ searchParams: string, name: string, __html: string }>) {
+    if (searchParams) { }
+
+    const [searchQuery] = useQueryState("query", { defaultValue: "" })
+
     const clusterCtx = useContext(ClusterCtx);
 
-    const hasSearchString = cheerio.load(__html).text().toLowerCase().includes(searchParams)
-    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchParams)
+    const hasSearchString = cheerio.load(__html).text().toLowerCase().includes(searchQuery)
+    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchQuery)
 
     return (
         <td className="w-1/4 px-4 py-2 border border-gray-500 text-center align-top">
@@ -39,16 +44,20 @@ export function SubNodeRow({ searchParams, subNodes, isFirst }: Readonly<{
     subNodes: ISubNode,
     isFirst: boolean
 }>) {
+    if (searchParams) { }
+
+    const [searchQuery] = useQueryState("query", { defaultValue: "" })
+
     const clusterCtx = useContext(ClusterCtx);
 
-    const ogHasSearchString = cheerio.load(subNodes.original).text().toLowerCase().includes(searchParams)
+    const ogHasSearchString = cheerio.load(subNodes.original).text().toLowerCase().includes(searchQuery)
 
     let derpysHasSearchString = false
     if (subNodes.derpys) {
-        derpysHasSearchString = cheerio.load(subNodes.derpys).text().toLowerCase().includes(searchParams)
+        derpysHasSearchString = cheerio.load(subNodes.derpys).text().toLowerCase().includes(searchQuery)
     }
 
-    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchParams)
+    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchQuery)
 
     return (
         <>

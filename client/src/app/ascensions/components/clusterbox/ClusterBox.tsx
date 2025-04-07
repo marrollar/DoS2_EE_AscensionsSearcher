@@ -6,6 +6,7 @@ import NodeRow from "../nodetable/NodeRow"
 import ClusterFlavor from "./ClusterFlavor"
 import ClusterRequirementRewards from "./ClusterRequirementRewards"
 import ClusterTitle from "./ClusterTitle"
+import { useQueryState } from "nuqs"
 
 type ClusterCtxType = {
     clusterName: string,
@@ -37,6 +38,7 @@ const FuseOptions = {
 };
 
 export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchParams: string, cluster: IClusterData }>) {
+    const [searchQuery] = useQueryState("query", { defaultValue: "" })
     const aspect = useContext(AspectContext)
 
     const clusterMainDescription = cluster.description
@@ -46,13 +48,13 @@ export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchP
     clusterReqRew = clusterReqRew.replace("Requires:", "Required:").replace("Completion grants:", "Completion:").replaceAll("<br>", "")
     const reqRew_parts = clusterReqRew.split(".")
 
-    const titleIsSearch = cluster.name.toLowerCase().includes(searchParams.toLowerCase())
+    const titleIsSearch = cluster.name.toLowerCase().includes(searchQuery.toLowerCase())
 
     const flattenedSubNodes = Object.values(clusterNodes)
     const fuse = new Fuse(flattenedSubNodes, FuseOptions);
-    const subNodesWithSearchStr = fuse.search(searchParams)
+    const subNodesWithSearchStr = fuse.search(searchQuery)
 
-    const showCluster = titleIsSearch || subNodesWithSearchStr.length > 0 || searchParams === ""
+    const showCluster = titleIsSearch || subNodesWithSearchStr.length > 0 || searchQuery === ""
 
     return (
         <div id={cluster.id} className={`bg-[#202020] mt-4 px-2 pb-3 scroll-m-38 ${showCluster ? "" : "hidden"}`}>

@@ -2,7 +2,6 @@
 
 import AspectBox from "@/app/ascensions/components/aspectbox/AspectBox";
 import { Aspects } from "@/app/types";
-import { useSearchParams } from "next/navigation";
 import { createContext } from "react";
 import { AscensionData } from "../types";
 
@@ -48,11 +47,8 @@ export const AspectContext = createContext(Aspects.Default);
 // }
 
 export default function AscensionsClientPage({ ascensionsData }: Readonly<{ ascensionsData: AscensionData }>) {
-    const usp = useSearchParams();
-    let searchParams = usp.get("query")
-    if (searchParams === null) {
-        searchParams = ""
-    }
+    // const [searchQuery] = useQueryState("query", { defaultValue: "" })
+
     // const ascensionsFlat = [
     //     ...ascensionsData[Aspects.Force],
     //     ...ascensionsData[Aspects.Entropy],
@@ -63,27 +59,28 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
 
     // const fuse = new Fuse(ascensionsFlat, FuseOptions);
     // const [filteredAscensions, setFilteredAscensions] = useState(ascensionsData);
+    const searchQuery = ""
 
     return (
         <>
             <AspectContext value={Aspects.Force}>
-                <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Force]}></AspectBox>
+                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Force]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Entropy}>
-                <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Entropy]}></AspectBox>
+                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Entropy]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Form}>
-                <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Form]}></AspectBox>
+                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Form]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Inertia}>
-                <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Inertia]}></AspectBox>
+                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Inertia]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Life}>
-                <AspectBox searchParams={searchParams} clusters={ascensionsData[Aspects.Life]}></AspectBox>
+                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Life]}></AspectBox>
             </AspectContext>
         </>
     )
