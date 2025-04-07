@@ -1,16 +1,12 @@
 "use client"
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useQueryState } from "nuqs";
 import { AscensionData } from "../types";
 import { aspectToTextCSS } from "../utils";
+import SideBarButton from "./SideBarButton";
 
 export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: AscensionData }>) {
-    const usp = useSearchParams();
-    let searchParams = usp.get("query")
-    if (searchParams === null) {
-        searchParams = ""
-    }
+    const [searchParams] = useQueryState("query", { defaultValue: "" })
 
     const allClusterTitles: {
         href: string,
@@ -22,7 +18,7 @@ export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: A
         const title_text_color = aspectToTextCSS(aspect)
 
         ascData.forEach((clusterData) => {
-            const titleInSearch = clusterData.name.toLowerCase().includes(searchParams.toLowerCase()) || searchParams !== ""
+            const titleInSearch = searchParams !== "" || clusterData.name.toLowerCase().includes(searchParams.toLowerCase())
 
             if (titleInSearch) {
                 allClusterTitles.push({
@@ -41,14 +37,9 @@ export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: A
                 <hr className="border-t border-gray-300/25" />
                 {
                     allClusterTitles.map((cluster) => (
-                        <Link
-                            key={"sidebar" + cluster.name}
-                            href={cluster.href}
-                            className="block w-full h-full text-left text-[18px] py-1 hover:bg-gray-900 hover:cursor-pointer">
-                            <div className={`${cluster.color}`}>
-                                {cluster.name}
-                            </div>
-                        </Link>
+                        <div key={"sidebar" + cluster.name}>
+                            <SideBarButton clusterName={cluster.name} color={cluster.color} />
+                        </div>
                     ))
                 }
             </div>
