@@ -21,11 +21,14 @@ export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: A
             const $title = cheerio.load(clusterTitle)
             $title("font").attr("color", Aspect_Txt_Color[asp].slice(1))
 
-            allClusterTitles.push({
-                href: "#" + $title.text().replaceAll(" ", ""),
-                // __html: `<a href=#${$title.text().replaceAll(" ", "")} className="block"> ${$title.html()} </a>`
-                __html: $title.html()
-            })
+            const titleInSearch = $title.text().toLowerCase().includes(searchParams.toLowerCase()) || searchParams !== ""
+
+            if (titleInSearch) {
+                allClusterTitles.push({
+                    href: "#" + $title.text().replaceAll(" ", ""),
+                    __html: $title.html()
+                })
+            }
         })
     })
 
@@ -36,16 +39,6 @@ export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: A
                 <hr className="border-t border-gray-300/25" />
                 {
                     allClusterTitles.map((cluster) => (
-                        // <div
-                        //     key={"sidebar" + cluster.__html}
-                        //     className="text-left text-[18px] px-2 py-1 hover:bg-gray-900 hover:cursor-pointer"
-                        //     dangerouslySetInnerHTML={{ __html: cluster.__html }}
-                        // />
-                        // <a
-                        //     key={"sidebar" + cluster.__html}
-                        //     className="block w-full h-full text-left text-[18px] px-2 py-1 hover:bg-gray-900 hover:cursor-pointer"
-                        //     dangerouslySetInnerHTML={{ __html: cluster.__html }}
-                        // />
                         <Link
                             key={"sidebar" + cluster.__html}
                             href={cluster.href}

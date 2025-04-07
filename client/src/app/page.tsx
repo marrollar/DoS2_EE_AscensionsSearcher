@@ -95,11 +95,13 @@ export default async function AscensionsHome() {
     const ascensionsData = await getAscensionsData();
     // TODO: Make proper skeleton for this suspense
     return (
-        <Suspense>
-            <div className="flex flex-col w-[60%] max-w-[1100px] mx-auto my-2 px-1 py-1 rounded-lg shadow-md bg-gray-700">
+
+        <div className="flex flex-col w-[60%] max-w-[1100px] mx-auto my-2 px-1 py-1 rounded-lg shadow-md bg-gray-700">
+            <Suspense>
                 <SideBar ascensionsData={ascensionsData} />
                 <AscensionsClientPage ascensionsData={ascensionsData} />
-            </div>
-        </Suspense>
+            </Suspense>
+        </div>
+
     )
 }
