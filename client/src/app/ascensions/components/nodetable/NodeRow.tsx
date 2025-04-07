@@ -1,4 +1,4 @@
-import { MainNodeDivider, SubNodeRow, SubNodesDivider } from "@/app/ascensions/components/nodetable/NodeTable";
+import { MainNodeDivider, SubNodeRow, SubNodesDivider } from "@/app/ascensions/components/nodetable/NodeRowHelpers";
 import { ISubNode } from "@/app/types";
 import * as cheerio from "cheerio";
 import { useContext } from "react";

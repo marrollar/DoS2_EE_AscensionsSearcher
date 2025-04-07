@@ -3,7 +3,7 @@ import Fuse from "fuse.js"
 import { createContext, useContext } from "react"
 import { AspectContext } from "../../client-page"
 import NodeRow from "../nodetable/NodeRow"
-import ClusterDescription from "./ClusterDescription"
+import ClusterFlavor from "./ClusterFlavor"
 import ClusterRequirementRewards from "./ClusterRequirementRewards"
 import ClusterTitle from "./ClusterTitle"
 
@@ -57,7 +57,7 @@ export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchP
     return (
         <div id={cluster.id} className={`bg-[#202020] mt-4 px-2 pb-3 scroll-m-38 ${showCluster ? "" : "hidden"}`}>
             <ClusterTitle clusterName={cluster.name} />
-            <ClusterDescription desc={clusterMainDescription} />
+            <ClusterFlavor desc={clusterMainDescription} />
             <ClusterRequirementRewards requirements={reqRew_parts[0]} rewards={reqRew_parts[1]} />
             {
                 Object.keys(clusterNodes).map((mainNodeID) => (
