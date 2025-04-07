@@ -1,12 +1,8 @@
-"use client"
-
-import { useQueryState } from "nuqs";
 import { AscensionData } from "../types";
 import { aspectToTextCSS } from "../utils";
 import SideBarButton from "./SideBarButton";
 
 export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: AscensionData }>) {
-    const [searchParams] = useQueryState("query", { defaultValue: "" })
 
     const allClusterTitles: {
         href: string,
@@ -18,15 +14,11 @@ export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: A
         const title_text_color = aspectToTextCSS(aspect)
 
         ascData.forEach((clusterData) => {
-            const titleInSearch = searchParams !== "" || clusterData.name.toLowerCase().includes(searchParams.toLowerCase())
-
-            if (titleInSearch) {
-                allClusterTitles.push({
-                    href: "#" + clusterData.id,
-                    name: clusterData.name,
-                    color: title_text_color
-                })
-            }
+            allClusterTitles.push({
+                href: "#" + clusterData.id,
+                name: clusterData.name,
+                color: title_text_color
+            })
         })
     })
 
