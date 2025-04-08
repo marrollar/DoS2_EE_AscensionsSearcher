@@ -3,7 +3,15 @@ import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 
 
-export default function SideBarButton({ clusterName, color }: Readonly<{ clusterName: string, color: string }>) {
+export default function SideBarButton({
+    clusterName,
+    sideBarSearch,
+    color
+}: Readonly<{
+    clusterName: string,
+    sideBarSearch: string,
+    color: string
+}>) {
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
     const [isHidden, setIsHidden] = useState(false);
 
@@ -12,14 +20,17 @@ export default function SideBarButton({ clusterName, color }: Readonly<{ cluster
     useEffect(() => {
         const element = document.getElementById(href) as HTMLElement;
         const clusterIsHidden = element.getAttribute("class")?.includes("hidden")
+        const clusterInSideSearch = clusterName.toLowerCase().includes(sideBarSearch.toLowerCase())
 
-        if (clusterIsHidden) {
+        const buttonIsHidden = clusterIsHidden || !clusterInSideSearch
+
+        if (buttonIsHidden) {
             setIsHidden(true)
         } else {
             setIsHidden(false)
         }
 
-    }, [searchQuery, href])
+    }, [searchQuery, href, clusterName, sideBarSearch])
 
 
     const scrollToCluster = () => {
@@ -37,7 +48,8 @@ export default function SideBarButton({ clusterName, color }: Readonly<{ cluster
         <>
             <button
                 onClick={scrollToCluster}
-                className={`block w-full h-full text-left text-[18px] py-1 hover:bg-gray-900 hover:cursor-pointer ${color} ${isHidden ? "hidden" : ""}`}>
+                className={`btn w-full text-left px-1 py-1 hover:bg-gray-900 hover:cursor-pointer ${color} ${isHidden ? "hidden" : ""}`}
+            >
                 {clusterName}
             </button>
         </>

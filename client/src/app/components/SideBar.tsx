@@ -1,8 +1,13 @@
+"use client"
+
+import { useState } from "react";
 import { AscensionData } from "../types";
 import { aspectToTextCSS } from "../utils";
 import SideBarButton from "./SideBarButton";
+import SidebarSearchBar from "./SideBarSearchBar";
 
 export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: AscensionData }>) {
+    const [sideBarSearch, setSideBarSearch] = useState("");
 
     const allClusterTitles: {
         href: string,
@@ -27,10 +32,11 @@ export default function SideBar({ ascensionsData }: Readonly<{ ascensionsData: A
             <div className="bg-gray-800 px-2 rounded-lg ">
                 <p className="text-2xl py-3">Clusters</p>
                 <hr className="border-t border-gray-300/25" />
+                <SidebarSearchBar sideBarSearch={sideBarSearch} setSideBarSearch={setSideBarSearch} />
                 {
                     allClusterTitles.map((cluster) => (
                         <div key={"sidebar" + cluster.name}>
-                            <SideBarButton clusterName={cluster.name} color={cluster.color} />
+                            <SideBarButton clusterName={cluster.name} sideBarSearch={sideBarSearch} color={cluster.color} />
                         </div>
                     ))
                 }
