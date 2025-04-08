@@ -2,6 +2,11 @@ import argparse
 import os
 import shutil
 import sqlite3
+import xml.etree.ElementTree as ET
+import html
+import re
+
+from map_id_to_ascension import map_id_to_ascension
 
 from bs4 import BeautifulSoup
 
@@ -17,8 +22,10 @@ NODE_REWARDS_FILE = "AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
 
 # This file is found in the unpack of 'Derpy's EE2 Tweaks'.
 # The path after unpack is:
-# /Mods/Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua
-DERPYS_CHANGES_FILE = "PipsFancyUIStuff.lua"
+# /Mods/Derpy's EE2 tweaks/Localization/English/english.xml
+# It is then edited to add the Rhino 3.0 node, which was missing
+
+DERPYS_CHANGES_FILE = "modified_english.xml"
 
 DB_NAME = "ascensions.db"
 ORM_DIR = "../client/prisma"
@@ -355,12 +362,10 @@ def create_final_table():
 
 def parse_derpys_changes():
     """
-    Parses a copy of Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua to extract out the changes from Derpy's mod.
+    Parses a modified copy of Derpy's EE2 tweaks/Mods/Localization/English/english.xml to extract out the changes from Derpy's mod.
     """
     if not os.path.isfile(DERPYS_CHANGES_FILE):
         raise ("ERROR: File containing Derpy's changes was not found.")
-
-    prefixes = ["StatsTab.AddNodeStat", "StatsTab.STATS"]
 
     cur.execute("DROP TABLE IF EXISTS derpys")
     conn.commit()
@@ -378,121 +383,52 @@ def parse_derpys_changes():
     )
     conn.commit()
 
-    PARSE_STATE = None
-    STATE_PARSING_ADDITIONS = "PARSING_ADDITIONS"
-    STATE_NONE = None
+    derpys_root = ET.parse(DERPYS_CHANGES_FILE).getroot()
+    ascension_id_map = map_id_to_ascension()
 
-    with open(DERPYS_CHANGES_FILE, "r") as f:
-        for line in f:
-            if line.startswith(prefixes[0]):
+    for entry in derpys_root.iter('content'):
+        uid = entry.attrib.get('contentuid')
+        if uid and uid in ascension_id_map:
+            tokens = ascension_id_map[uid].split("_")
+            ascension_name = tokens[3]
+            # Separate name into words if needed (e.g. TheBasilisk -> The Basilisk)
+            cluster = re.sub(r'([a-z0-9])([A-Z])', r'\1 \2', tokens[4]) 
+            node = tokens[5] + " " + tokens[6]
+        
+            def parse_description(text):
+                raw_html = html.unescape(text)
+
+                # 2. Strip HTML tags
+                soup = BeautifulSoup(raw_html, 'html.parser')
+                plain_text = soup.get_text()
+
+                # 3. Remove the leading instructional sentence
+                sentences = re.split(r'(?<=[.?!:»])\s+', plain_text.strip())
+                remaining_text = " ".join(sentences[1:])
+
+                # 4. Replace bullet character with a line break
+                description = re.sub(r'»\s', '\n', remaining_text).strip()
+
+                # 5. Optional: clean up multiple newlines or spaces
+                description = re.sub(r'\n+', '\n', description)
+                description = re.sub(r'\s{2,}', ' ', description)
+
+                return description
+
+            description = parse_description(entry.text)
+            
+            cur.execute(
                 """
-                Derpy has some modifications that either add an entirely new node or add an extra effect to a node.
-                This contrasts the other modifications where it is a wholesale replacement of the function of the node, so these have to be handled a bit differently during parsing.
-                """
-
-                """
-                We grab pertinent information from the current line;
-                it should be all of the meta information about the modification such as the aspect it belongs to and the node its adding/modifying.
-                """
-                tokens = (
-                    (
-                        line[line.index("(") + 1 :]
-                        .replace('"', "")
-                        .replace("(", "")
-                        .replace("{", "")
-                        .replace("}", "")
-                    )
-                    .strip()
-                    .split(",")
-                )
-
-                aspect = tokens[0].split("_")[0]
-
-                cluster = tokens[0].split("_")[1]
-                if cluster.startswith("The"):
-                    cluster = "The " + cluster[3:]
-
-                main_node = tokens[1].strip()
-                sub_node = tokens[2].strip()
-
-                # print(cluster, main_node, sub_node)
-                PARSE_STATE = STATE_PARSING_ADDITIONS
-
-            elif PARSE_STATE == STATE_PARSING_ADDITIONS:
-                """ 
-                and grab the first instance of a line that contains a description after we found a line that is adding/creating a new node.
-                The line should look like this (note the indentation):
-                    Description = "...",
-                """
-
-                if line.strip().startswith("Description"):
-                    tokens = line.split("=")
-
-                    description = tokens[1].replace('"', "")
-                    for keyword in EE_KEY_WORDS:
-                        description = description.replace(
-                            keyword, f'<font color="ebc808">{keyword}</font>'
-                        )
-                    description = description.replace(
-                        "<br><br>", '<br><font color="cb9780">&gt;</font> '
-                    )
-
-                    # Scuse the writing-proper-code abuse
-                    cur.execute(
-                        """
-                        INSERT INTO derpys (aspect, cluster, node, description) VALUES (?, ?, ?, ?)
-                        """,
-                        (
-                            aspect.strip(),
-                            cluster.strip(),
-                            "Node " + main_node + "." + sub_node,
-                            '<font color="cb9780">&gt;</font> ' + description.strip(),
-                        ),
-                    )
-                    conn.commit()
-                    PARSE_STATE = STATE_NONE
-
-            elif line.startswith(prefixes[1]):
-                """
-                This handles changes that are total replacements.
-                """
-
-                """
-                An example of a line we are trying to tokenize is:
-                StatsTab.STATS["Form_Wealth_Node_3.1"].Description = "..."
-                """
-                tokens = line.split("=")
-                if tokens[0].strip().endswith("Description"):
-                    description = tokens[1].replace('"', "")
-                    for keyword in EE_KEY_WORDS:
-                        description = description.replace(
-                            keyword, f'<font color="ebc808">{keyword}</font>'
-                        )
-                    description = description.replace(
-                        "<br><br>", '<br><font color="cb9780">&gt;</font> '
-                    )
-
-                    tokens = tokens[0].split('"')[1].split("_")
-
-                    ascenion_name = tokens[0]
-
-                    cluster = tokens[1]
-                    if cluster.startswith("The"):
-                        cluster = "The " + cluster[3:]
-                    node = tokens[2] + " " + tokens[3]
-
-                    cur.execute(
-                        """
-                        INSERT INTO derpys (aspect, cluster, node, description) VALUES (?, ?, ?, ?)
-                        """,
-                        (
-                            ascenion_name.strip(),
-                            cluster.strip(),
-                            node.strip(),
-                            '<font color="cb9780">&gt;</font> ' + description.strip(),
-                        ),
-                    )
-                    conn.commit()
+                INSERT INTO derpys (aspect, cluster, node, description) VALUES (?, ?, ?, ?)
+                """,
+                (
+                    ascension_name.strip(),
+                    cluster.strip(),
+                    node.strip(),
+                    '<font color="cb9780">&gt;</font> ' + description.strip(),
+                ),
+            )
+            conn.commit()
 
 
 if __name__ == "__main__":
