@@ -60,7 +60,7 @@ export type ICluster_Order = {
         "The Imp",
         "The Hyena",
         "Extinction",
-        "Blood Ape",
+        // "Blood Ape",
         "Death",
         "Decay",
         "Demilich",

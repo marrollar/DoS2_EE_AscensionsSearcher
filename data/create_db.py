@@ -247,8 +247,7 @@ def parse_for_corrections():
                 aspect = tokens[1].split("_")[0].replace('"', "")
 
                 cluster = tokens[1].split("_")[1].replace('"', "")
-                if cluster.startswith("The"):
-                    cluster = "The " + cluster[3:]
+                cluster = re.sub(r'([a-z0-9])([A-Z])', r'\1 \2', cluster)
 
                 from_node = " ".join(tokens[2].split("_")).replace('"', "")
                 to_node = " ".join(tokens[3].split("_")).replace('"', "")
@@ -281,8 +280,7 @@ def parse_for_corrections():
                 aspect = tokens[0].split("_")[0].replace('"', "")
 
                 cluster = tokens[0].split("_")[1].replace('"', "")
-                if cluster.startswith("The"):
-                    cluster = "The " + cluster[3:]
+                cluster = re.sub(r'([a-z0-9])([A-Z])', r'\1 \2', cluster)
 
                 node_uuid_used = " ".join(tokens[1].split("_")).replace('"', "")
 
