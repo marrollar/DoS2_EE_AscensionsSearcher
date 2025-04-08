@@ -1,8 +1,9 @@
-from bs4 import BeautifulSoup
-import sqlite3
+import argparse
 import os
 import shutil
-import argparse
+import sqlite3
+
+from bs4 import BeautifulSoup
 
 # This file is found in the unpack of 'Epic_Encounters_Core'. Note that the copy of it in the repo has been renamed, but the contents are not altered.
 # The path after unpack is:
