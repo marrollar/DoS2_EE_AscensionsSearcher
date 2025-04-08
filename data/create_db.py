@@ -2,21 +2,30 @@ from bs4 import BeautifulSoup
 import sqlite3
 import os
 import shutil
+import argparse
 
-EE_CORE_ROOT = (
-    "../EE2_raw_src/Core/Mods/Epic_Encounters_Core_63bb9b65-2964-4c10-be5b-55a63ec02fa0"
-)
-DERPY_ROOT = "../EE2_raw_src/Derpy's/Mods/Derpy's EE2 tweaks"
+# This file is found in the unpack of 'Epic_Encounters_Core'. Note that the copy of it in the repo has been renamed, but the contents are not altered.
+# The path after unpack is:
+# /Mods/Epic_Encounters_Core/Localization/AMER_UI_Ascension.lsx
+ORIGINAL_EE_LOCALIZATION_FILE = "_ORIGINAL_AMER_UI_Ascension.lsx"
+MODIFIED_EE_LOCALIZATION_FILE = "MODIFIED_AMER_UI_Ascension.lsx"
+
+# The path after unpack is:
+# /Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt
+NODE_REWARDS_FILE = "AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
+
+# This file is found in the unpack of 'Derpy's EE2 Tweaks'.
+# The path after unpack is:
+# /Mods/Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua
+DERPYS_CHANGES_FILE = "PipsFancyUIStuff.lua"
+
 DB_NAME = "ascensions.db"
 ORM_DIR = "../client/prisma"
 
-if not os.path.isdir(EE_CORE_ROOT):
-    raise ("ERROR: Path to folder containing unpacking of EE Core was not found.")
-if not os.path.isdir(DERPY_ROOT):
-    raise ("ERROR: Path to foldering containg unpacking of Derpy's mod was not found.")
 if not os.path.isdir(ORM_DIR):
-    raise ("ERROR: The website's ORM folder was not found.")
-
+    raise (
+        "ERROR: The website's ORM folder was not found. Please check to see the repo was cloned properly."
+    )
 
 EE_KEY_WORDS = [
     "Elementalist",
@@ -46,29 +55,27 @@ def clean_bad_chars():
     """
     The localization contains a bunch of non UTF-8 characters, which will mess with rendering later, so we replace them with closest approximations.
     """
-    file = os.path.join(EE_CORE_ROOT, "Localization/AMER_UI_Ascension.lsx")
-    shutil.copy(file, "./AMER_UI_Ascension.lsx")
+    if not os.path.isfile(ORIGINAL_EE_LOCALIZATION_FILE):
+        raise ("ERROR: Original localization file for EE was not found")
 
-    with open("./AMER_UI_Ascension.lsx", "r+", encoding="utf-8") as f:
+    with open(ORIGINAL_EE_LOCALIZATION_FILE, "r+", encoding="utf-8") as f:
         text = f.read()
         text = text.replace("\u2019", "'")
         text = text.replace("\u00bb", ">")
 
-    with open("./AMER_UI_Ascension.lsx", "w") as f:
+    with open(MODIFIED_EE_LOCALIZATION_FILE, "w") as f:
         f.write(text)
-
-
-print("Sanitizing localization file")
-clean_bad_chars()
 
 
 def parse_for_descriptions():
     """
-    Parses Epic_Encounters_Core/Localization/AMER_UI_Ascension.lsx to extract out the node descriptions for all ascensions.
+    Parses a character sanitized version of Epic_Encounters_Core/Localization/AMER_UI_Ascension.lsx to extract out the node descriptions for all ascensions.
     There are unused and duplicate descriptions which are not handled in this function; they are handled later.
     """
-
-    file = "./AMER_UI_Ascension.lsx"
+    if not os.path.isfile(MODIFIED_EE_LOCALIZATION_FILE):
+        raise (
+            "ERROR: Somehow, modifications to the localization file didnt manage to get saved, or something really bad happened to it somewhere."
+        )
 
     ascension_prefixes = [
         "AMER_UI_Ascension_Force_",
@@ -95,7 +102,7 @@ def parse_for_descriptions():
     )
     conn.commit()
 
-    with open(file, "r") as f:
+    with open(MODIFIED_EE_LOCALIZATION_FILE, "r") as f:
         """
         This is an example of an entry we are attempting to parse:
 
@@ -184,20 +191,14 @@ def parse_for_descriptions():
                 conn.commit()
 
 
-print("Parsing for descriptions")
-parse_for_descriptions()
-
-
 def parse_for_corrections():
     """
-    Parses Epic_Encounters_Core/Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt to determine which node UUIDs are actually used.
+    Parses a copy of Epic_Encounters_Core/Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt to determine which node UUIDs are actually used.
     This is used to correlate with the descriptions parsed above to select for the correct node descriptions to use.
     """
 
-    file = os.path.join(
-        EE_CORE_ROOT,
-        "Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt",
-    )
+    if not os.path.isfile(NODE_REWARDS_FILE):
+        raise ("ERROR: The node rewards file was not found.")
 
     main_node_prefixes = ["PROC_AMER_UI_ElementChain_Node_Link_Add"]
 
@@ -226,7 +227,7 @@ def parse_for_corrections():
     )
     conn.commit()
 
-    with open(file, "r") as f:
+    with open(NODE_REWARDS_FILE, "r") as f:
         for line in f:
             if any(line.startswith(prefix) for prefix in main_node_prefixes):
                 """
@@ -293,10 +294,6 @@ def parse_for_corrections():
                 conn.commit()
 
 
-print("Parsing for corrections")
-parse_for_corrections()
-
-
 def create_final_table():
     cur.execute("DROP TABLE IF EXISTS nodes")
     conn.commit()
@@ -355,15 +352,12 @@ def create_final_table():
     conn.commit()
 
 
-print("Creating final ground truth table")
-create_final_table()
-
-
 def parse_derpys_changes():
     """
-    Parses Derpy's/Mods/Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua to extract out the changes from Derpy's mod.
+    Parses a copy of Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua to extract out the changes from Derpy's mod.
     """
-    file = os.path.join(DERPY_ROOT, "Story/RawFiles/Lua/PipsFancyUIStuff.lua")
+    if not os.path.isfile(DERPYS_CHANGES_FILE):
+        raise ("ERROR: File containing Derpy's changes was not found.")
 
     prefixes = ["StatsTab.AddNodeStat", "StatsTab.STATS"]
 
@@ -387,7 +381,7 @@ def parse_derpys_changes():
     STATE_PARSING_ADDITIONS = "PARSING_ADDITIONS"
     STATE_NONE = None
 
-    with open(file, "r") as f:
+    with open(DERPYS_CHANGES_FILE, "r") as f:
         for line in f:
             if line.startswith(prefixes[0]):
                 """
@@ -500,9 +494,34 @@ def parse_derpys_changes():
                     conn.commit()
 
 
-print("Parsing for Derpy's changes")
-parse_derpys_changes()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--with-overwrite",
+        help="Allows the file to automatically copy the final database over to the website and overwrite an existing one there.",
+        action="store_true",
+    )
 
-conn.close()
+    args = parser.parse_args()
+    print(args)
 
-shutil.move(DB_NAME, os.path.join(ORM_DIR, DB_NAME))
+    print("Sanitizing localization file")
+    clean_bad_chars()
+
+    print("Parsing for descriptions")
+    parse_for_descriptions()
+
+    print("Parsing for corrections")
+    parse_for_corrections()
+
+    print("Creating final ground truth table")
+    create_final_table()
+
+    print("Parsing for Derpy's changes")
+    parse_derpys_changes()
+
+    conn.close()
+
+    if args.with_overwrite:
+        print("-- OVERWRITING DATABASE FILE --")
+        shutil.move(DB_NAME, os.path.join(ORM_DIR, DB_NAME))
