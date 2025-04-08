@@ -3,7 +3,7 @@ import { getDerpysByCluster, getDescription_By_ClusterAndAttr, getOriginal_MainN
 import { AscensionData, Aspects, CLUSTER_ORDER, IClusterData, IMainNode, stringToAspect } from "@/app/types";
 import { Suspense } from "react";
 import AscensionsClientPage from "./ascensions/client-page";
-import SideBar from "./components/SideBar";
+import SideBar from "./ascensions/components/sidebar/SideBar";
 
 async function processMainNodes(
     cluster: string,

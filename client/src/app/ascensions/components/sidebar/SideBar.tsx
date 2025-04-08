@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react";
-import { AscensionData } from "../types";
-import { aspectToTextCSS } from "../utils";
+import { AscensionData } from "../../../types";
+import { aspectToTextCSS } from "../../../utils";
 import SideBarButton from "./SideBarButton";
 import SidebarSearchBar from "./SideBarSearchBar";
 
