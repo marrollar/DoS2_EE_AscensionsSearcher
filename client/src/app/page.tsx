@@ -5,6 +5,67 @@ import { Suspense } from "react";
 import AscensionsClientPage from "./ascensions/client-page";
 import SideBar from "./components/SideBar";
 
+async function processMainNodes(
+    cluster: string,
+    nodes: {
+        [key: string]: IMainNode
+    }) {
+
+    const mainNodes = await getOriginal_MainNodes_By_Cluster(cluster);
+    mainNodes.forEach(e => {
+        const mainNode = e.attr.split(" ")[1];
+
+        nodes[mainNode] = {
+            description: e.description,
+            subnodes: {},
+            hasImplicit: e.has_implicit ? true : false,
+            _subnodesFlat: []
+        }
+    })
+}
+
+async function processSubNodes(
+    cluster: string,
+    nodes: {
+        [key: string]: IMainNode
+    }) {
+    const subNodes = await getOriginal_SubNodes_By_Cluster(cluster);
+    subNodes.forEach(e => {
+        const tokens = e.attr.split(" ")[1].split(".");
+        const mainNode = tokens[0]
+        const subNode = tokens[1];
+
+        nodes[mainNode].subnodes[subNode] = { original: e.description }
+    })
+}
+
+async function processDerpys(
+    cluster: string,
+    nodes: {
+        [key: string]: IMainNode
+    }) {
+    const derpysNodes = await getDerpysByCluster(cluster);
+    derpysNodes.forEach(e => {
+        const tokens = e.node.split(" ")[1].split(".");
+        const mainNode = tokens[0]
+        const subNode = tokens[1];
+
+        try {
+            nodes[mainNode].subnodes[subNode].derpys = e.description
+        } catch (error: unknown) {
+            if (error instanceof TypeError) {
+                // We assume that, in any circumstance that a pre-existing node failed to be found, that it is a new node added by Derpy or some other mod instead.
+                nodes[mainNode].subnodes[subNode] = {
+                    original: "",
+                    derpys: e.description
+                }
+            } else {
+                throw error
+            }
+        }
+    })
+}
+
 async function getAscensionsData() {
 
     const ascensionsData: AscensionData = {
@@ -22,47 +83,9 @@ async function getAscensionsData() {
         for (const cluster of CLUSTER_ORDER[aspect]) {
             const nodes: { [key: string]: IMainNode } = {};
 
-            const mainNodes = await getOriginal_MainNodes_By_Cluster(cluster);
-            mainNodes.forEach(e => {
-                const mainNode = e.attr.split(" ")[1];
-
-                nodes[mainNode] = {
-                    description: e.description,
-                    subnodes: {},
-                    hasImplicit: e.has_implicit ? true : false,
-                    _subnodesFlat: []
-                }
-            })
-
-            const subNodes = await getOriginal_SubNodes_By_Cluster(cluster);
-            subNodes.forEach(e => {
-                const tokens = e.attr.split(" ")[1].split(".");
-                const mainNode = tokens[0]
-                const subNode = tokens[1];
-
-                nodes[mainNode].subnodes[subNode] = { original: e.description }
-            })
-
-            const derpysNodes = await getDerpysByCluster(cluster);
-            derpysNodes.forEach(e => {
-                const tokens = e.node.split(" ")[1].split(".");
-                const mainNode = tokens[0]
-                const subNode = tokens[1];
-
-                try {
-                    nodes[mainNode].subnodes[subNode].derpys = e.description
-                } catch (error: unknown) {
-                    if (error instanceof TypeError) {
-                        // We assume that, in any circumstance that a pre-existing node failed to be found, that it is a new node added by Derpy or some other mod instead.
-                        nodes[mainNode].subnodes[subNode] = {
-                            original: "",
-                            derpys: e.description
-                        }
-                    } else {
-                        throw error
-                    }
-                }
-            })
+            await processMainNodes(cluster, nodes)
+            await processSubNodes(cluster, nodes)
+            await processDerpys(cluster, nodes)
 
             Object.values(nodes).map(mainNodeData => {
                 mainNodeData._subnodesFlat = Object.entries(mainNodeData.subnodes).map(([subNodes, snData]) => ({
