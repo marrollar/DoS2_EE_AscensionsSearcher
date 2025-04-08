@@ -1,4 +1,6 @@
 *.db
+__pycache__
+EE2_raw_src
 
 ## Node gitignores
 # Logs
