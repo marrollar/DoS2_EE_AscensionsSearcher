@@ -28,3 +28,20 @@ def map_id_to_ascension():
 
     # Resulting dictionary
     return contentuid_to_uuid
+
+def map_node_number_to_ascension():
+    NODE_REWARDS_FILE = "AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
+    pattern = re.compile(r'"[^"]+",\s*"([^"]+)",\s*"Node_(\d+)"')
+    node_map = {}
+    with open(NODE_REWARDS_FILE, 'r') as f:
+        for line in f:
+            if "AddNode_Child" not in line:
+                continue
+            match = pattern.search(line)
+            if match:
+                cluster_full_name, node_number = match.groups()
+                cluster_name = cluster_full_name.split("_")[1]
+                if not node_map.get(cluster_name) or node_map[cluster_name] < int(node_number) + 1:
+                    node_map[cluster_name] = int(node_number) + 1
+    return node_map
+

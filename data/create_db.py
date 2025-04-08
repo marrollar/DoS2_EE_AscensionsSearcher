@@ -6,7 +6,8 @@ import xml.etree.ElementTree as ET
 import html
 import re
 
-from map_id_to_ascension import map_id_to_ascension
+from ascension_mapping import map_id_to_ascension
+from ascension_mapping import map_node_number_to_ascension
 
 from bs4 import BeautifulSoup
 
@@ -381,6 +382,7 @@ def parse_derpys_changes():
 
     derpys_root = ET.parse(DERPYS_CHANGES_FILE).getroot()
     ascension_id_map = map_id_to_ascension()
+    ascension_node_numbers = map_node_number_to_ascension()
 
     for entry in derpys_root.iter('content'):
         uid = entry.attrib.get('contentuid')
@@ -413,18 +415,19 @@ def parse_derpys_changes():
 
             description = parse_description(entry.text)
             
-            cur.execute(
-                """
-                INSERT INTO derpys (aspect, cluster, node, description) VALUES (?, ?, ?, ?)
-                """,
-                (
-                    ascension_name.strip(),
-                    cluster.strip(),
-                    node.strip(),
-                    '<font color="cb9780">&gt;</font> ' + description.strip(),
-                ),
-            )
-            conn.commit()
+            if int(float(tokens[6])) < ascension_node_numbers[tokens[4]]:
+                cur.execute(
+                    """
+                    INSERT INTO derpys (aspect, cluster, node, description) VALUES (?, ?, ?, ?)
+                    """,
+                    (
+                        ascension_name.strip(),
+                        cluster.strip(),
+                        node.strip(),
+                        '<font color="cb9780">&gt;</font> ' + description.strip(),
+                    ),
+                )
+                conn.commit()
 
 
 if __name__ == "__main__":
