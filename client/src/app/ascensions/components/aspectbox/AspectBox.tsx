@@ -7,9 +7,8 @@ import AspectHeader from "./AspectHeader";
 import ClusterBox from "../clusterbox/ClusterBox";
 
 export default function AspectBox({
-    searchParams,
     clusters,
-}: Readonly<{ searchParams: string, clusters: IClusterData[] }>) {
+}: Readonly<{ clusters: IClusterData[] }>) {
 
     const aspect = useContext(AspectContext)
 
@@ -19,7 +18,7 @@ export default function AspectBox({
                 {
                     clusters.map((c) => (
                         <div key={aspect + c.name}>
-                            <ClusterBox searchParams={searchParams} cluster={c} />
+                            <ClusterBox cluster={c} />
                         </div>
 
                     ))

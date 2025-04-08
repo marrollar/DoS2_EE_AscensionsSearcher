@@ -37,7 +37,7 @@ const FuseOptions = {
     ]
 };
 
-export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchParams: string, cluster: IClusterData }>) {
+export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData }>) {
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
     const aspect = useContext(AspectContext)
 
@@ -69,7 +69,6 @@ export default function ClusterBox({ searchParams, cluster }: Readonly<{ searchP
                             mainNodeID: mainNodeID
                         }}>
                             <NodeRow
-                                searchParams={searchParams}
                                 subNodes={clusterNodes[mainNodeID].subnodes}
                                 implicit={clusterNodes[mainNodeID].hasImplicit ? clusterNodes[mainNodeID].description : ""}
                             />

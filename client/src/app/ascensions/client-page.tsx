@@ -59,28 +59,26 @@ export default function AscensionsClientPage({ ascensionsData }: Readonly<{ asce
 
     // const fuse = new Fuse(ascensionsFlat, FuseOptions);
     // const [filteredAscensions, setFilteredAscensions] = useState(ascensionsData);
-    const searchQuery = ""
-
     return (
         <>
             <AspectContext value={Aspects.Force}>
-                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Force]}></AspectBox>
+                <AspectBox clusters={ascensionsData[Aspects.Force]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Entropy}>
-                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Entropy]}></AspectBox>
+                <AspectBox clusters={ascensionsData[Aspects.Entropy]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Form}>
-                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Form]}></AspectBox>
+                <AspectBox clusters={ascensionsData[Aspects.Form]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Inertia}>
-                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Inertia]}></AspectBox>
+                <AspectBox clusters={ascensionsData[Aspects.Inertia]}></AspectBox>
             </AspectContext>
 
             <AspectContext value={Aspects.Life}>
-                <AspectBox searchParams={searchQuery} clusters={ascensionsData[Aspects.Life]}></AspectBox>
+                <AspectBox clusters={ascensionsData[Aspects.Life]}></AspectBox>
             </AspectContext>
         </>
     )
