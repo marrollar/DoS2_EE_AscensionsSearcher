@@ -170,9 +170,7 @@ def parse_for_descriptions():
 
                 aspect = uuid_tokens[3]
 
-                cluster = uuid_tokens[4]
-                if cluster.startswith("The"):
-                    cluster = "The " + cluster[3:]
+                cluster = re.sub(r'([a-z0-9])([A-Z])', r'\1 \2', uuid_tokens[4])
                 ascension_attr = uuid_tokens[5]
                 ascension_node = ""
 
@@ -407,7 +405,7 @@ def parse_derpys_changes():
                 remaining_text = " ".join(sentences[1:])
 
                 # 4. Replace bullet character with a line break
-                description = re.sub(r'»\s', '\n', remaining_text).strip()
+                description = re.sub(r'»\s', '\n>', remaining_text).strip()
 
                 # 5. Optional: clean up multiple newlines or spaces
                 description = re.sub(r'\n+', '\n', description)
