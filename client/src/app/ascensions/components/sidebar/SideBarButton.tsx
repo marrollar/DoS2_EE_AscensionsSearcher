@@ -2,7 +2,6 @@
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 
-
 export default function SideBarButton({
     clusterName,
     sideBarSearch,
@@ -48,7 +47,7 @@ export default function SideBarButton({
         <>
             <button
                 onClick={scrollToCluster}
-                className={`btn w-full text-left px-1 py-1 hover:bg-gray-900 hover:cursor-pointer ${color} ${isHidden ? "hidden" : ""}`}
+                className={`btn justify-start w-full bg-base-100 hover:bg-base-300 hover:cursor-pointer ${color} ${isHidden ? "hidden" : ""}`}
             >
                 {clusterName}
             </button>

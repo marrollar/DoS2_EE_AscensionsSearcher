@@ -12,14 +12,18 @@ export default function SearchBar() {
     }, 100)
 
     return (
-        <input
-            id={"MainKeyWordSearchBar"}
-            type="text"
-            onChange={handleSearchChange}
-            className="mx-4 my-4 px-2 py-2 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Keyword search..."
-            defaultValue={searchQuery}
-        />
-    )
+        <div className="flex">
+            <input
+                id={"MainKeyWordSearchBar"}
+                type="text"
+                onChange={handleSearchChange}
+                className="input flex-1 mx-4 my-4"
+                placeholder="Keyword search..."
+                defaultValue={searchQuery}
+            />
+        </div>
 
+    )
+    // mx-4 my-4 px-2 py-2 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500
+    // input w-full border border-gray-300 my-2
 }

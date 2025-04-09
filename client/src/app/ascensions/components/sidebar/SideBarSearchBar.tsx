@@ -12,12 +12,15 @@ export default function SidebarSearchBar({
     }
 
     return (
-        <input
-            type="text"
-            onChange={handleSearchChange}
-            className="input w-full border border-gray-300 rounded-sm px-2 py-1 my-2"
-            placeholder="Cluster search..."
-            defaultValue={sideBarSearch}
-        />
+        <div className="flex">
+            <input
+                type="text"
+                onChange={handleSearchChange}
+                className="input flex-1 border my-2"
+                placeholder="Cluster search..."
+                defaultValue={sideBarSearch}
+            />
+        </div>
+
     )
 }

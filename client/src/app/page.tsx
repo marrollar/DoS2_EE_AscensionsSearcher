@@ -80,33 +80,36 @@ async function getAscensionsData() {
 
         const aspect = stringToAspect[aspectStr]
 
-        for (const cluster of CLUSTER_ORDER[aspect]) {
-            const nodes: { [key: string]: IMainNode } = {};
+        for (const tier in CLUSTER_ORDER[aspect]) {
+            for (const cluster of CLUSTER_ORDER[aspect][tier]) {
+                const nodes: { [key: string]: IMainNode } = {};
 
-            await processMainNodes(cluster, nodes)
-            await processSubNodes(cluster, nodes)
-            await processDerpys(cluster, nodes)
+                await processMainNodes(cluster, nodes)
+                await processSubNodes(cluster, nodes)
+                await processDerpys(cluster, nodes)
 
-            Object.values(nodes).map(mainNodeData => {
-                mainNodeData._subnodesFlat = Object.entries(mainNodeData.subnodes).map(([subNodes, snData]) => ({
-                    subNodes,
-                    ...snData
-                }))
-            });
+                Object.values(nodes).map(mainNodeData => {
+                    mainNodeData._subnodesFlat = Object.entries(mainNodeData.subnodes).map(([subNodes, snData]) => ({
+                        subNodes,
+                        ...snData
+                    }))
+                });
 
-            const data: IClusterData = {
-                id: cluster.replaceAll(" ", ""),
-                name: cluster,
-                description: (await getDescription_By_ClusterAndAttr(cluster, "Desc"))["description"],
-                rewards: (await getDescription_By_ClusterAndAttr(cluster, "Rewards"))["description"],
-                aspect: aspect,
-                nodes: nodes,
-                _nodesFlat: Object.entries(nodes).map(([mainNode, subNodes]) => ({
-                    mainNode,
-                    ...subNodes
-                }))
+                const data: IClusterData = {
+                    id: cluster.replaceAll(" ", ""),
+                    name: cluster,
+                    description: (await getDescription_By_ClusterAndAttr(cluster, "Desc"))["description"],
+                    rewards: (await getDescription_By_ClusterAndAttr(cluster, "Rewards"))["description"],
+                    aspect: aspect,
+                    nodes: nodes,
+                    tier:tier,
+                    _nodesFlat: Object.entries(nodes).map(([mainNode, subNodes]) => ({
+                        mainNode,
+                        ...subNodes
+                    }))
+                }
+                ascensionsData[aspect].push(data)
             }
-            ascensionsData[aspect].push(data)
         }
     }
 
@@ -119,8 +122,7 @@ export default async function AscensionsHome() {
     const ascensionsData = await getAscensionsData();
     // TODO: Make proper skeleton for this suspense
     return (
-
-        <div className="flex flex-col w-[60%] max-w-[1100px] mx-auto my-2 px-1 py-1 rounded-lg shadow-md bg-gray-700">
+        <div className="flex flex-col max-w-[800] mx-auto my-2 px-1 py-1 rounded-tr rounded-br bg-base-100 border border-base-300">
             <Suspense>
                 <SideBar ascensionsData={ascensionsData} />
                 <AscensionsClientPage ascensionsData={ascensionsData} />
