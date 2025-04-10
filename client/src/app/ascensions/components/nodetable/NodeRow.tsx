@@ -5,9 +5,8 @@ import { useContext } from "react";
 import { AspectContext } from "../../client-page";
 import { ClusterCtx } from "../clusterbox/ClusterBox";
 
-export default function NodeRow({ searchParams, subNodes, implicit }:
+export default function NodeRow({ subNodes, implicit }:
     Readonly<{
-        searchParams: string,
         subNodes: { [key: string]: ISubNode },
         implicit: string
     }>) {
@@ -39,7 +38,7 @@ export default function NodeRow({ searchParams, subNodes, implicit }:
             <table className="w-[100%] table-fixed border-collapse">
                 <tbody>
                     <tr className={mainNID % 2 == 0 ? "bg-gray-700" : "bg-gray-800"}>
-                        <MainNodeDivider searchParams={searchParams} name={clusterCtx.mainNodeID} __html={implicitClean} />
+                        <MainNodeDivider name={clusterCtx.mainNodeID} __html={implicitClean} />
                         <SubNodesDivider>
                             {Object.keys(subNodes).map((subNodeID) => {
 
@@ -52,7 +51,7 @@ export default function NodeRow({ searchParams, subNodes, implicit }:
 
                                 return (
                                     <tr key={parentKey + subNodeID} className={`${myColorId ? "bg-gray-800" : "bg-gray-700"}`}>
-                                        <SubNodeRow searchParams={searchParams} subNodes={subNodes[subNodeID]} isFirst={subNodeID === "0"} />
+                                        <SubNodeRow subNodes={subNodes[subNodeID]} isFirst={subNodeID === "0"} />
                                     </tr>
                                 )
                             })}

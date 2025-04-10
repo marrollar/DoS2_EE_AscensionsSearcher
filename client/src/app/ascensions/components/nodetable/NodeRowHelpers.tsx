@@ -4,8 +4,7 @@ import { useContext } from "react";
 import { ClusterCtx } from "../clusterbox/ClusterBox";
 import { useQueryState } from "nuqs";
 
-export function MainNodeDivider({ searchParams, name, __html }: Readonly<{ searchParams: string, name: string, __html: string }>) {
-    if (searchParams) { }
+export function MainNodeDivider({ name, __html }: Readonly<{ name: string, __html: string }>) {
 
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
 
@@ -39,12 +38,10 @@ export function SubNodesDivider({ children }: Readonly<{ children: React.ReactNo
     )
 }
 
-export function SubNodeRow({ searchParams, subNodes, isFirst }: Readonly<{
-    searchParams: string,
+export function SubNodeRow({ subNodes, isFirst }: Readonly<{
     subNodes: ISubNode,
     isFirst: boolean
 }>) {
-    if (searchParams) { }
 
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
 
