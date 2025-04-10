@@ -4,6 +4,7 @@ import { AscensionData, Aspects, CLUSTER_ORDER, IClusterData, IMainNode, stringT
 import { Suspense } from "react";
 import AscensionsClientPage from "./ascensions/client-page";
 import SideBar from "./ascensions/components/sidebar/SideBar";
+import SideDrawer from "./ascensions/components/sidebar/SideDrawer";
 
 async function processMainNodes(
     cluster: string,
@@ -102,7 +103,7 @@ async function getAscensionsData() {
                     rewards: (await getDescription_By_ClusterAndAttr(cluster, "Rewards"))["description"],
                     aspect: aspect,
                     nodes: nodes,
-                    tier:tier,
+                    tier: tier,
                     _nodesFlat: Object.entries(nodes).map(([mainNode, subNodes]) => ({
                         mainNode,
                         ...subNodes
@@ -124,7 +125,8 @@ export default async function AscensionsHome() {
     return (
         <div className="flex flex-col max-w-[800] mx-auto my-2 px-1 py-1 rounded-tr rounded-br bg-base-100 border border-base-300">
             <Suspense>
-                <SideBar ascensionsData={ascensionsData} />
+                <SideDrawer ascensionsData={ascensionsData} />
+                
                 <AscensionsClientPage ascensionsData={ascensionsData} />
             </Suspense>
         </div>

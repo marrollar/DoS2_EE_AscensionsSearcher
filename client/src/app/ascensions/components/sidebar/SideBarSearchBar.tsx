@@ -16,7 +16,7 @@ export default function SidebarSearchBar({
             <input
                 type="text"
                 onChange={handleSearchChange}
-                className="input flex-1 border my-2"
+                className="input flex-1 border my-4"
                 placeholder="Cluster search..."
                 defaultValue={sideBarSearch}
             />
