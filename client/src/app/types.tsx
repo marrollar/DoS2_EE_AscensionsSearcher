@@ -101,7 +101,7 @@ export type ICluster_Order = {
         ],
     },
     [Aspects.Inertia]: {
-        "Tier 1:": [
+        "Tier 1": [
             "The Armadillo",
             "The Auroch",
             "The Guardsman",
@@ -121,7 +121,7 @@ export type ICluster_Order = {
         ],
     },
     [Aspects.Life]: {
-        "Tier 1:": [
+        "Tier 1": [
             "The Rabbit",
             "The Hind",
             "The Lizard",

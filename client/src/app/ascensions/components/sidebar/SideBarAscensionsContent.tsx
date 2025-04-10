@@ -1,6 +1,6 @@
 "use client"
 
-import { AscensionData } from "@/app/types";
+import { AscensionData, Aspects, stringToAspect } from "@/app/types";
 import { aspectToTextCSS } from "@/app/utils";
 import { useState } from "react";
 import SideBarButton from "./SideBarButton";
@@ -10,26 +10,58 @@ export default function SideBarAscensionsContent({ ascensionsData }: Readonly<{ 
     const [sideBarSearch, setSideBarSearch] = useState("");
 
     const allClusterTitles: {
-        [key: string]: {
-            href: string,
-            name: string,
-            color: string
+        [aspect in Aspects]: {
+            [key: string]: {
+                href: string,
+                name: string,
+                color: string
+            }[]
         }
-    }[] = []
+    } = {
+        Force: {
+            "Tier 1": [],
+            "Tier 2": [],
+            "Tier 3": []
+        },
+        Life: {
+            "Tier 1": [],
+            "Tier 2": [],
+            "Tier 3": []
+        },
+        Entropy: {
+            "Tier 1": [],
+            "Tier 2": [],
+            "Tier 3": []
+        },
+        Form: {
+            "Tier 1": [],
+            "Tier 2": [],
+            "Tier 3": []
+        },
+        Inertia: {
+            "Tier 1": [],
+            "Tier 2": [],
+            "Tier 3": []
+        },
+        Default: {},
+    }
 
-    Object.entries(ascensionsData).map(([aspect, ascData]) => {
+    Object.entries(ascensionsData).map(([asp, ascData]) => {
+        const aspect = stringToAspect[asp];
         const title_text_color = aspectToTextCSS(aspect)
 
         ascData.forEach((clusterData) => {
             const tier = clusterData.tier
 
-            allClusterTitles.push({
+            allClusterTitles[aspect][tier].push({
                 href: "#" + clusterData.id,
                 name: clusterData.name,
                 color: title_text_color
             })
         })
     })
+
+    // TODO: Determine whether to include aspect and tier separators
 
     return (
         <>
@@ -39,11 +71,17 @@ export default function SideBarAscensionsContent({ ascensionsData }: Readonly<{ 
             <SidebarSearchBar sideBarSearch={sideBarSearch} setSideBarSearch={setSideBarSearch} />
             {/* <SideBarDivider aspect="Force"/> */}
             {
-                allClusterTitles.map((cluster) => (
-                    <div key={"sidebar" + cluster.name}>
-                        <SideBarButton clusterName={cluster.name} sideBarSearch={sideBarSearch} color={cluster.color} />
-                    </div>
-                ))
+                Object.values(allClusterTitles).map((tierData) =>
+                    Object.values(tierData).map((clusters) =>
+                        clusters.map((cluster) => {
+                            return (
+                                <div key={"sidebar" + cluster.name}>
+                                    <SideBarButton clusterName={cluster.name} sideBarSearch={sideBarSearch} color={cluster.color} />
+                                </div>
+                            )
+                        })
+                    )
+                )
             }
             {/* </SideBarDivider> */}
         </>
