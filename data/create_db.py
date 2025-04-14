@@ -3,6 +3,7 @@ import os
 import shutil
 import sqlite3
 
+import bs4
 from bs4 import BeautifulSoup
 
 from constants import (
@@ -11,7 +12,7 @@ from constants import (
     NODE_REWARDS_FILE,
     AMER_LOCAL_PREFIXES,
     AMER_NODE_REWARDS_PREFIX,
-    AMER_SUBNODE_REWARDS_PREFIXES, DERPYS_LUAFILE_PREFIXES,
+    AMER_SUBNODE_REWARDS_PREFIXES, DERPYS_LUAFILE_PREFIXES, DERPYS_LOCAL,
 )
 from parse_helpers import CoreHelper, NodeRewardsHelper, DerpysAdditionsHelper, clean_bad_chars, \
     DerpysReplacementsHelper
@@ -164,6 +165,7 @@ def create_final_table():
             WITH
             node_descs AS (
                 SELECT
+                    c.{t_CORE.href} as href,
                     c.{t_CORE.aspect} AS aspect,
                     nr.{t_NR.cluster} AS cluster, 
                     c.{t_CORE.attr} AS attr, 
@@ -176,6 +178,7 @@ def create_final_table():
             ),
             asc_meta AS (
                 SELECT
+                    {t_CORE.href},
                     {t_CORE.aspect},
                     {t_CORE.cluster},
                     {t_CORE.attr},
@@ -318,9 +321,10 @@ def rectify_edge_cases():
                 {t_NODES.description}
             FROM {t_NODES._name}
             WHERE
-                {t_NODES.cluster}="{cluster}" AND
-                {t_NODES.attr}="{node}"
-            """
+                {t_NODES.cluster}=? AND
+                {t_NODES.attr}=?
+            """,
+            (cluster, node)
         ).fetchall()
 
         if len(nodes_entry) > 0:
@@ -339,6 +343,37 @@ def rectify_edge_cases():
                 (f"{existing_desc}<br>{desc}", cluster, node)
             )
             conn.commit()
+
+        """
+        In order to fix 3. we will parse Derpy's localization file - english.xml - 
+        to retrieve all 'contentuid's being overwritten.
+        
+        We then to need to check:
+        1. Whether this contentuid exists in the 'nodes' table so we filter out all non-ascensions related text.
+        2. If it does, we treat it as a replacement of the node in question.
+        """
+
+        with open(DERPYS_LOCAL, "r") as f:
+            soup = bs4.BeautifulSoup(f, "lxml")
+            content_tags = soup.find_all("content")
+
+            for tag in content_tags:
+                print(tag)
+                content_id = tag.get("contentuid")
+
+                node = cur.execute(
+                    f"""
+                    SELECT * FROM {t_NODES._name}
+                    WHERE {t_NODES.href}=?
+                    """,
+                    (content_id,)
+                ).fetchall()
+
+                if len(node) > 0:
+                    assert (len(node) == 1)
+
+                    if "Rabbit" in node[0][2]:
+                        print(node)
 
 
 if __name__ == "__main__":

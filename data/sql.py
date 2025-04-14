@@ -116,6 +116,7 @@ def INSERT_TABLE_NODE_REWARDS(cursor, conn, *args):
 
 class t_NODES(metaclass=_MetaTable):
     _name = "nodes"
+    href = _sql_type("href", "TEXT", "NOT NULL")
     aspect = _sql_type("aspect", "TEXT", "NOT NULL")
     cluster = _sql_type("cluster", "TEXT", "NOT NULL")
     attr = _sql_type("attr", "TEXT", "NOT NULL")
