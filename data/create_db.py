@@ -24,10 +24,10 @@ from sql import (
     t_NODE_REWARDS as t_NR,
     CREATE_TABLE_NODE_REWARDS,
     INSERT_TABLE_NODE_REWARDS,
-    CREATE_TABLE_NODES, CREATE_TABLE_DERPYS, INSERT_TABLE_DERPYS, t_DERPYS
+    CREATE_TABLE_NODES, CREATE_TABLE_DERPYS, INSERT_TABLE_DERPYS, t_DERPYS, t_NODES
 )
 
-TEMP_INTERMEDIATE_TABLES = False
+TEMP_INTERMEDIATE_TABLES = True
 
 conn = sqlite3.connect(DB_NAME)
 cur = conn.cursor()
@@ -247,7 +247,8 @@ def parse_derpys_changes():
                         (t_DERPYS.aspect, aspect),
                         (t_DERPYS.cluster, cluster),
                         (t_DERPYS.node, node),
-                        (t_DERPYS.description, description)
+                        (t_DERPYS.description, description),
+                        (t_DERPYS.is_addition, 1)
                     )
                     PARSE_STATE = STATE_NONE
 
@@ -262,7 +263,6 @@ def parse_derpys_changes():
                 """
                 tokens = line.split("=")
                 if tokens[0].strip().endswith("Description"):
-
                     derpys_replacements_helper = DerpysReplacementsHelper(tokens[0], tokens[1])
                     aspect, cluster, node = derpys_replacements_helper.cluster_data
                     description = derpys_replacements_helper.desc
@@ -273,8 +273,72 @@ def parse_derpys_changes():
                         (t_DERPYS.aspect, aspect),
                         (t_DERPYS.cluster, cluster),
                         (t_DERPYS.node, node),
-                        (t_DERPYS.description, description)
+                        (t_DERPYS.description, description),
+                        (t_DERPYS.is_addition, 0)
                     )
+
+
+def rectify_edge_cases():
+    """
+    There are 3 edge cases that need to be resolved.
+
+    Derpys changes that are additions are one of either:
+    1. A completely new node. (See Rhinoceros 3.2 from Derpys)
+    2. An added effect to a node. (See Extinction 2.2 from Derpys)
+
+    3. Derpy has some changes that do not exist in the lua file that is being parsed.
+    These changes typically correspond to effects that grant a Talent on some condition (See Serpent 2.1)
+    """
+
+    """
+    In order to fix 1. and 2., we will use the 'is_additions' column in the 'derpys' table as a filter for any 
+    modification we assume is an addition to a cluster.
+    
+    We then check the modification's Node.Subnode against the 'nodes' table.
+    If the 'nodes' table already has such a node, we assume it is an added effect.
+    If such a node does not exist, we assume it is a new node entirely.
+    """
+
+    derpy_additions = cur.execute(
+        f"""
+        SELECT 
+            {t_DERPYS.cluster}, 
+            {t_DERPYS.node},
+            {t_DERPYS.description}
+        FROM {t_DERPYS._name} WHERE {t_DERPYS.is_addition}=1
+        """
+    ).fetchall()
+
+    for cluster, node, desc in derpy_additions:
+        nodes_entry = cur.execute(
+            f"""
+            SELECT
+                {t_NODES.cluster},
+                {t_NODES.attr},
+                {t_NODES.description}
+            FROM {t_NODES._name}
+            WHERE
+                {t_NODES.cluster}="{cluster}" AND
+                {t_NODES.attr}="{node}"
+            """
+        ).fetchall()
+
+        if len(nodes_entry) > 0:
+            assert (len(nodes_entry) == 1)
+
+            existing_desc = nodes_entry[0][2]
+
+            cur.execute(
+                f"""
+                UPDATE {t_DERPYS._name}
+                SET {t_DERPYS.description}=?
+                WHERE
+                    {t_DERPYS.cluster}=? AND
+                    {t_DERPYS.node}=?
+                """,
+                (f"{existing_desc}<br>{desc}", cluster, node)
+            )
+            conn.commit()
 
 
 if __name__ == "__main__":
@@ -303,6 +367,9 @@ if __name__ == "__main__":
 
     print("Parsing for Derpy's changes")
     parse_derpys_changes()
+
+    print("Fixing edge cases")
+    rectify_edge_cases()
 
     conn.close()
 

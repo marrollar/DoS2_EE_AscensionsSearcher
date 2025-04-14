@@ -148,6 +148,7 @@ class t_DERPYS(metaclass=_MetaTable):
     cluster = _sql_type("cluster", "TEXT", "NOT NULL")
     node = _sql_type("node", "TEXT", "NOT NULL")
     description = _sql_type("description", "TEXT", "NOT NULL")
+    is_addition = _sql_type("is_addition", "INTEGER", "NOT NULL")
 
 
 def CREATE_TABLE_DERPYS(cursor, conn, temp=False):
