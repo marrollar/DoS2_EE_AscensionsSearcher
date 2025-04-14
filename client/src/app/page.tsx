@@ -122,7 +122,7 @@ export default async function AscensionsHome() {
     const ascensionsData = await getAscensionsData();
     // TODO: Make proper skeleton for this suspense
     return (
-        <div className="flex flex-col max-w-[800] mx-auto my-2 px-1 py-1 rounded-tr rounded-br bg-base-100 border border-base-300">
+        <div className="flex flex-col max-w-[1050] mx-auto my-2 px-1 py-1 rounded-tr rounded-br bg-base-100 border border-base-300">
             <Suspense>
                 <SideDrawer ascensionsData={ascensionsData} />
                 

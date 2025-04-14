@@ -37,7 +37,7 @@ export default function NodeRow({ subNodes, implicit }:
         <div className="overflow-x-auto px-4">
             <table className="w-[100%] table-fixed border-collapse">
                 <tbody>
-                    <tr className={mainNID % 2 == 0 ? "bg-gray-700" : "bg-gray-800"}>
+                    <tr className={mainNID % 2 == 0 ? "bg-base-300" : "bg-base-100"}>
                         <MainNodeDivider name={clusterCtx.mainNodeID} __html={implicitClean} />
                         <SubNodesDivider>
                             {Object.keys(subNodes).map((subNodeID) => {
@@ -50,7 +50,7 @@ export default function NodeRow({ subNodes, implicit }:
                                 }
 
                                 return (
-                                    <tr key={parentKey + subNodeID} className={`${myColorId ? "bg-gray-800" : "bg-gray-700"}`}>
+                                    <tr key={parentKey + subNodeID} className={`${myColorId ? "bg-base-100" : "bg-base-300"}`}>
                                         <SubNodeRow subNodes={subNodes[subNodeID]} isFirst={subNodeID === "0"} />
                                     </tr>
                                 )
