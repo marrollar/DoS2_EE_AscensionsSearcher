@@ -12,10 +12,11 @@ from constants import (
     NODE_REWARDS_FILE,
     AMER_LOCAL_PREFIXES,
     AMER_NODE_REWARDS_PREFIX,
-    AMER_SUBNODE_REWARDS_PREFIXES, DERPYS_LUAFILE_PREFIXES, DERPYS_LOCAL,
+    AMER_SUBNODE_REWARDS_PREFIXES, DERPYS_LUAFILE_PREFIXES, ORIGINAL_EE_LOCAL, ORIGINAL_DERPYS_LOCAL,
+    MODIFIED_DERPYS_LOCAL,
 )
 from parse_helpers import CoreHelper, NodeRewardsHelper, DerpysAdditionsHelper, clean_bad_chars, \
-    DerpysReplacementsHelper
+    DerpysReplacementsHelper, descs_are_same
 from sql import (
     DB_NAME,
     ORM_DIR,
@@ -80,6 +81,9 @@ def parse_for_descriptions():
 
                 if aspect is None:
                     continue
+
+                if "Desc" in cluster_attr:
+                    node = ""
 
                 # print(cluster, "\n", ascension_attr, ascension_node, "\n\n")
                 INSERT_TABLE_CORE(
@@ -294,7 +298,9 @@ def rectify_edge_cases():
     """
 
     """
-    In order to fix 1. and 2., we will use the 'is_additions' column in the 'derpys' table as a filter for any 
+    1. is fixed implicitly during the parsing of Derpy's lua file.
+    
+    In order to fix 2., we will use the 'is_additions' column in the 'derpys' table as a filter for any 
     modification we assume is an addition to a cluster.
     
     We then check the modification's Node.Subnode against the 'nodes' table.
@@ -302,6 +308,7 @@ def rectify_edge_cases():
     If such a node does not exist, we assume it is a new node entirely.
     """
 
+    # 1. Get every entry in the 'derpys' table that is considered an addition.
     derpy_additions = cur.execute(
         f"""
         SELECT 
@@ -312,6 +319,7 @@ def rectify_edge_cases():
         """
     ).fetchall()
 
+    # 2. Get every entry in the 'nodes' table that corresponds is the same (cluster, node) pair
     for cluster, node, desc in derpy_additions:
         nodes_entry = cur.execute(
             f"""
@@ -327,11 +335,12 @@ def rectify_edge_cases():
             (cluster, node)
         ).fetchall()
 
+        # 2.1 If such an entry exists
         if len(nodes_entry) > 0:
             assert (len(nodes_entry) == 1)
-
             existing_desc = nodes_entry[0][2]
 
+            # 3. Update the 'derpys' description to also have the original description in front of Derpy's description.
             cur.execute(
                 f"""
                 UPDATE {t_DERPYS._name}
@@ -351,17 +360,21 @@ def rectify_edge_cases():
         We then to need to check:
         1. Whether this contentuid exists in the 'nodes' table so we filter out all non-ascensions related text.
         2. If it does, we treat it as a replacement of the node in question.
+        
+        Alot of this work is admittedly wasteful, but to avoid having to rewrite a big portion of the database related code,
+        we can just reuse the database structure created earlier anyway.
         """
 
-        with open(DERPYS_LOCAL, "r") as f:
-            soup = bs4.BeautifulSoup(f, "lxml")
+        with open(MODIFIED_DERPYS_LOCAL, "r") as f:
+            soup = bs4.BeautifulSoup(f, "xml")
             content_tags = soup.find_all("content")
 
+            # 1. Get all tags in the 'english.xml' file
             for tag in content_tags:
-                print(tag)
                 content_id = tag.get("contentuid")
 
-                node = cur.execute(
+                # 2. Get the entry in 'nodes' that corresponds with the current tag
+                node_data = cur.execute(
                     f"""
                     SELECT * FROM {t_NODES._name}
                     WHERE {t_NODES.href}=?
@@ -369,11 +382,32 @@ def rectify_edge_cases():
                     (content_id,)
                 ).fetchall()
 
-                if len(node) > 0:
-                    assert (len(node) == 1)
+                # 2.1 If such an entry exists
+                if len(node_data) > 0:
+                    assert (len(node_data) == 1)
+                    node_data = node_data[0]
 
-                    if "Rabbit" in node[0][2]:
-                        print(node)
+                    # 3. Ignore main node descriptions. We never use them, but they are stored for posterity.
+                    if "." not in node_data[3]:
+                        continue
+
+                    aspect, cluster, node, desc = node_data[1], node_data[2], node_data[3], node_data[4]
+                    derpys_local_text = CoreHelper.sanitize_description(tag.text)
+
+                    raw_desc = BeautifulSoup(desc, "html.parser").get_text()
+                    raw_derpys_local_text = BeautifulSoup(derpys_local_text, "html.parser").get_text()
+
+                    if not descs_are_same(raw_desc, raw_derpys_local_text, threshold=0.95):
+                        cur.execute(
+                            f"""
+                            INSERT INTO {t_DERPYS._name} ({t_DERPYS.aspect}, {t_DERPYS.cluster}, {t_DERPYS.node}, {t_DERPYS.description}, {t_DERPYS.is_addition})
+                            VALUES (?,?,?,?,?)
+                            ON CONFLICT({t_DERPYS.aspect}, {t_DERPYS.cluster}, {t_DERPYS.node}) DO UPDATE SET
+                                {t_DERPYS.description}=?
+                            """
+                            , (aspect, cluster, node, derpys_local_text, 0, derpys_local_text)
+                        )
+                        conn.commit()
 
 
 if __name__ == "__main__":
@@ -388,8 +422,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
 
-    print("Sanitizing localization file")
-    clean_bad_chars()
+    print("Sanitizing localization files")
+    clean_bad_chars(ORIGINAL_EE_LOCAL, MODIFIED_EE_LOCAL)
+    clean_bad_chars(ORIGINAL_DERPYS_LOCAL, MODIFIED_DERPYS_LOCAL)
 
     print("Parsing for descriptions")
     parse_for_descriptions()

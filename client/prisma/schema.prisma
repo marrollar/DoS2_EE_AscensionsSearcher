@@ -12,11 +12,13 @@ model derpys {
   cluster     String
   node        String
   description String
+  is_addition Int
 
   @@id([aspect, cluster, node])
 }
 
 model nodes {
+  href         String
   aspect       String
   cluster      String
   attr         String

@@ -71,7 +71,7 @@ export type ICluster_Order = {
             "The Imp",
             "The Hyena",
             "Extinction",
-            "BloodApe",
+            "Blood Ape",
         ],
         "Tier 3": [
 

@@ -1,33 +1,36 @@
 import os
+import string
+from difflib import SequenceMatcher
 
-from constants import ORIGINAL_EE_LOCAL, MODIFIED_EE_LOCAL, EE_KEY_WORDS, HTML_COLOR_KEYWORD, HTML_GT
+from constants import EE_KEY_WORDS, HTML_COLOR_KEYWORD, HTML_GT
 
 
 # "tns" for "tokenize and sanitize"
 
-def clean_bad_chars():
+def clean_bad_chars(orig_path, modified_path):
     """
-    The localization contains a bunch of non UTF-8 characters, which will mess with rendering later, so we replace them with closest approximations.
+    General helper method to replace non UTF-8 characters,
     """
-    if not os.path.isfile(ORIGINAL_EE_LOCAL):
-        raise "ERROR: Original localization file for EE was not found"
+    if not os.path.isfile(orig_path):
+        raise "ERROR: Original file was not found"
 
-    with open(ORIGINAL_EE_LOCAL, "r+", encoding="utf-8") as f:
+    with open(orig_path, "r+", encoding="utf-8") as f:
         text = f.read()
         text = text.replace("\u2019", "'")
         text = text.replace("\u00bb", ">")
 
-    with open(MODIFIED_EE_LOCAL, "w") as f:
+    with open(modified_path, "w") as f:
         f.write(text)
 
 
 class CoreHelper:
 
     def __init__(self, content_desc, uuid):
-        self.desc = self.sanitize_description(content_desc)
-        self.cluster_data = self.extract_cluster_data(uuid)
+        self.desc = CoreHelper.sanitize_description(content_desc)
+        self.cluster_data = CoreHelper.extract_cluster_data(uuid)
 
-    def sanitize_description(self, desc):
+    @staticmethod
+    def sanitize_description(desc):
         # Preprocess some of the HTML so the server doesn't have to
         replace_strs = [
             ("<p align='left'>", ""),
@@ -51,7 +54,8 @@ class CoreHelper:
 
         return desc.rstrip(",. ")
 
-    def extract_cluster_data(self, uuid):
+    @staticmethod
+    def extract_cluster_data(uuid):
         # Split UUID for aspect, cluster and node values
         tokens = uuid.split("_")
 
@@ -62,15 +66,12 @@ class CoreHelper:
                 return None, None, None, None
 
         aspect = tokens[3]
-        cluster = tokens[4]
+        cluster = format_cluster(tokens[4])
         cluster_attr = tokens[5]
         try:
             node = tokens[6]
         except IndexError:
             node = ""
-
-        if cluster.startswith("The"):
-            cluster = f"The {cluster[3:]}"
 
         return aspect, cluster, cluster_attr, node
 
@@ -78,9 +79,10 @@ class CoreHelper:
 class NodeRewardsHelper:
 
     def __init__(self, line):
-        self.tokens = self.tns(line)
+        self.tokens = NodeRewardsHelper.tns(line)
 
-    def tns(self, line):
+    @staticmethod
+    def tns(line):
         tokens = (
             line[line.index("("):]
             .strip(".,;()\n ")
@@ -93,12 +95,9 @@ class NodeRewardsHelper:
         cluster_tokens = self.tokens[1].split("_")
 
         aspect = cluster_tokens[0]
-        cluster = cluster_tokens[1]
+        cluster = format_cluster(cluster_tokens[1])
         from_node = " ".join(self.tokens[2].split("_"))
         to_node = " ".join(self.tokens[3].split("_"))
-
-        if cluster.startswith("The"):
-            cluster = f"The {cluster[3:]}"
 
         return aspect, cluster, from_node, to_node
 
@@ -106,11 +105,8 @@ class NodeRewardsHelper:
         cluster_tokens = self.tokens[0].split("_")
 
         aspect = cluster_tokens[0]
-        cluster = cluster_tokens[1]
+        cluster = format_cluster(cluster_tokens[1])
         node = " ".join(self.tokens[1].split("_"))
-
-        if cluster.startswith("The"):
-            cluster = f"The {cluster[3:]}"
 
         return aspect, cluster, node
 
@@ -118,22 +114,21 @@ class NodeRewardsHelper:
 class DerpysAdditionsHelper:
 
     def __init__(self, clusterline, descline):
-        self.cluster_data = self.extract_cluster_data(clusterline)
-        self.desc = self.extract_description(descline)
+        self.cluster_data = DerpysAdditionsHelper.extract_cluster_data(clusterline)
+        self.desc = DerpysAdditionsHelper.extract_description(descline)
 
-    def extract_cluster_data(self, line):
-        tokens = self.tns_clusterline(line)
+    @staticmethod
+    def extract_cluster_data(line):
+        tokens = DerpysAdditionsHelper.tns_clusterline(line)
 
         aspect = tokens[0].split("_")[0]
-        cluster = tokens[0].split("_")[1]
+        cluster = format_cluster(tokens[0].split("_")[1])
         node = f"Node {tokens[1]}.{tokens[2]}"
-
-        if cluster.startswith("The"):
-            cluster = "The " + cluster[3:]
 
         return aspect, cluster, node
 
-    def tns_clusterline(self, line):
+    @staticmethod
+    def tns_clusterline(line):
         replace_strs = [
             ('"', ''),
             ("(", ""),
@@ -150,11 +145,13 @@ class DerpysAdditionsHelper:
 
         return [t.strip() for t in tokens]
 
-    def extract_description(self, line):
-        tokens = self.tns_descline(line)
+    @staticmethod
+    def extract_description(line):
+        tokens = DerpysAdditionsHelper.tns_descline(line)
         return format_derpys_desc(tokens[1])
 
-    def tns_descline(self, line):
+    @staticmethod
+    def tns_descline(line):
         tokens = (
             line
             .replace('"', '')
@@ -167,22 +164,21 @@ class DerpysAdditionsHelper:
 class DerpysReplacementsHelper:
 
     def __init__(self, cluster_text, desc):
-        self.cluster_data = self.extract_cluster_data(cluster_text)
-        self.desc = self.s_description(desc)
+        self.cluster_data = DerpysReplacementsHelper.extract_cluster_data(cluster_text)
+        self.desc = DerpysReplacementsHelper.s_description(desc)
 
-    def extract_cluster_data(self, text):
+    @staticmethod
+    def extract_cluster_data(text):
         tokens = text.split('"')[1].strip('"[] ').split("_")
 
         aspect = tokens[0]
-        cluster = tokens[1]
+        cluster = format_cluster(tokens[1])
         node = f"{tokens[2]} {tokens[3]}"
-
-        if cluster.startswith("The"):
-            cluster = "The " + cluster[3:]
 
         return aspect, cluster, node
 
-    def s_description(self, desc):
+    @staticmethod
+    def s_description(desc):
         return format_derpys_desc(desc.replace('"', ''))
 
 
@@ -193,3 +189,22 @@ def format_derpys_desc(desc):
     desc = f"{HTML_GT} {desc}"
 
     return desc
+
+
+def format_cluster(cluster):
+    if cluster.startswith("The"):
+        cluster = f"The {cluster[3:]}"
+    elif cluster.startswith("BloodApe"):
+        cluster = "Blood Ape"
+
+    return cluster
+
+
+def descs_are_same(desc1, desc2, threshold=0.95):
+    def no_punctuation(s):
+        return "".join(c for c in s.lower() if c not in string.punctuation and not c.isspace())
+
+    def levenshtein(s1, s2):
+        return SequenceMatcher(None, s1, s2).ratio() >= threshold
+
+    return levenshtein(no_punctuation(desc1), no_punctuation(desc2))

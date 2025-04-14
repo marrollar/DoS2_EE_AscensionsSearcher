@@ -19,7 +19,8 @@ DERPYS_CHANGES_FILE = "PipsFancyUIStuff.lua"
 # This file is found in the unpack of "Derpy's EE2 Tweaks"
 # The path after unpack is:
 # /Mods/Derpy's EE2 tweaks/Localization/English
-DERPYS_LOCAL = "Derpys_english.xml"
+ORIGINAL_DERPYS_LOCAL = "_ORIGINAL_Derpys_english.xml"
+MODIFIED_DERPYS_LOCAL = "MODIFIED_Derpys_english.xml"
 
 # --------------------- EE CONSTANTS ---------------------
 EE_KEY_WORDS = [
