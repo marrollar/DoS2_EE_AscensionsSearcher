@@ -12,7 +12,7 @@ export default function Header() {
                 <SearchBar />
             </Suspense>
             <div className="text-[12px] text-gray-400">
-                {`Your mouse dissapears when searching. I don't know why yet, but I'll keep looking for the fix.`}
+                {`Your mouse disappears when searching. I don't know why yet, but I'll keep looking for the fix.`}
             </div>
         </div>
     )
