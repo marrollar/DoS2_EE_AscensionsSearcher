@@ -4,23 +4,23 @@
 # Note that the copy of it in the repo has been renamed, but the contents are not altered.
 # The path after unpack is:
 # /Mods/Epic_Encounters_Core/Localization/AMER_UI_Ascension.lsx
-ORIGINAL_EE_LOCAL = "_ORIGINAL_AMER_UI_Ascension.lsx"
-MODIFIED_EE_LOCAL = "MODIFIED_AMER_UI_Ascension.lsx"
+ORIGINAL_EE_LOCAL = "raw_files/_ORIGINAL_AMER_UI_Ascension.lsx"
+MODIFIED_EE_LOCAL = "raw_files/MODIFIED_AMER_UI_Ascension.lsx"
 
 # The path after unpack is:
 # /Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt
-NODE_REWARDS_FILE = "AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
+NODE_REWARDS_FILE = "raw_files/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
 
 # This file is found in the unpack of "Derpy's EE2 Tweaks".
 # The path after unpack is:
 # /Mods/Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua
-DERPYS_CHANGES_FILE = "PipsFancyUIStuff.lua"
+DERPYS_CHANGES_FILE = "raw_files/PipsFancyUIStuff.lua"
 
 # This file is found in the unpack of "Derpy's EE2 Tweaks"
 # The path after unpack is:
 # /Mods/Derpy's EE2 tweaks/Localization/English
-ORIGINAL_DERPYS_LOCAL = "_ORIGINAL_Derpys_english.xml"
-MODIFIED_DERPYS_LOCAL = "MODIFIED_Derpys_english.xml"
+ORIGINAL_DERPYS_LOCAL = "raw_files/_ORIGINAL_Derpys_english.xml"
+MODIFIED_DERPYS_LOCAL = "raw_files/MODIFIED_Derpys_english.xml"
 
 # --------------------- EE CONSTANTS ---------------------
 EE_KEY_WORDS = [
@@ -64,10 +64,7 @@ AMER_SUBNODE_REWARDS_PREFIXES = [
     "PROC_AMER_UI_Ascension_Node_AddReward_FromReal",
 ]
 
-DERPYS_LUAFILE_PREFIXES = [
-    "StatsTab.AddNodeStat",
-    "StatsTab.STATS"
-]
+DERPYS_LUAFILE_PREFIXES = ["StatsTab.AddNodeStat", "StatsTab.STATS"]
 
 # --------------------- STRING CONSTANTS ---------------------
 HTML_GT = '<font color="cb9780">&gt;</font>'
