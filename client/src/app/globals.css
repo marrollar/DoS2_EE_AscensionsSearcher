@@ -97,6 +97,6 @@ body {
 }
 
 @theme {
-  --breakpoint-sxl: 78rem; /* "sub-xl breakpoint" */
-  --breakpoint-ctnt: 905px; /* content breakpoint for drawer button, basically the max width of the center content minus the width of the SideDrawer button*/
+  --breakpoint-sxl: 95rem; /* "sub-xl breakpoint" */
+  --breakpoint-ctnt: 1150px; /* content breakpoint for drawer button, basically the max width of the center content minus the width of the SideDrawer button*/
 }

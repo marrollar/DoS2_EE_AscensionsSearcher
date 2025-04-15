@@ -28,3 +28,10 @@ model nodes {
 
   @@id([aspect, cluster, attr])
 }
+
+model artifacts {
+  href   String
+  aname  String  @id
+  orig   String
+  derpys String? @default("")
+}

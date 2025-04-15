@@ -1,6 +1,6 @@
 export default function SideDrawerToggleButton() {
     return (
-        <div className="fixed sm:max-ctnt:left-0 ctnt:translate-x-[calc(-100%-8px)] translate-y-[-4px] border border-base-300">
+        <div className="fixed sm:max-ctnt:left-0 ctnt:translate-x-[calc(-100%-12px)] translate-y-[-4px] border border-base-300 ml-1">
             <label htmlFor="my-drawer" aria-label="open sidebar" className="btn btn-square btn-ghost bg-base-100 hover:bg-base-300">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

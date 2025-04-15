@@ -13,7 +13,7 @@ export default function AspectBox({
     const aspect = useContext(AspectContext)
 
     return (
-        <div className="">
+        <div>
             <AspectHeader>
                 {
                     clusters.map((c) => (
