@@ -176,12 +176,13 @@ class t_ARTIFACTS(metaclass=_MetaTable):
     href = _sql_type("href", "TEXT", "NOT NULL")
     aname = _sql_type("aname", "TEXT", "NOT NULL")
     orig = _sql_type("orig", "TEXT", "NOT NULL")
+    derpys = _sql_type("derpys", "TEXT", 'DEFAULT ""')
 
 
-def CREATE_TABLE_ARTIFACTS(cursor, conn, temp=False):
+def CREATE_TABLE_ARTIFACTS(cursor, conn):
     cursor.execute(f"DROP TABLE IF EXISTS {t_ARTIFACTS._name}")
     cursor.execute(f"""
-        CREATE {"TEMP" if temp else ""} TABLE {t_ARTIFACTS._name} (
+        CREATE TABLE {t_ARTIFACTS._name} (
             {t_ARTIFACTS},
         
             PRIMARY KEY({t_ARTIFACTS.aname})

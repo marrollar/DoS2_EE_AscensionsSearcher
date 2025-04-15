@@ -3,7 +3,7 @@ import string
 
 from bs4 import BeautifulSoup
 
-from constants import MODIFIED_AMER_ARTIFACTS_DESC_FILE, EPIPS_ARTIFACTS_FILE, HTML_GT
+from constants import MODIFIED_AMER_ARTIFACTS_DESC_FILE, EPIPS_ARTIFACTS_FILE, HTML_GT, ORIGINAL_DERPYS_LOCAL
 from sql import CREATE_TABLE_ARTIFACTS, INSERT_TABLE_ARTIFACTS, t_ARTIFACTS
 
 # Don't touch this unless you know what you're doing
@@ -77,8 +77,9 @@ def sanitize_description(desc):
         .replace("<br>- ", f"<br>{HTML_GT}")
     )
 
-def parse_artifacts(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
-    CREATE_TABLE_ARTIFACTS(cur, conn, TEMP_INTERMEDIATE_TABLES)
+
+def parse_artifacts(cur, conn):
+    CREATE_TABLE_ARTIFACTS(cur, conn)
 
     artifact_names = {}
 
@@ -115,5 +116,26 @@ def parse_artifacts(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
                 )
 
 
-def parse_for_derpys_descs():
-    pass
+def parse_for_derpys_descs(cur, conn):
+    orig_descs = cur.execute(f"SELECT {t_ARTIFACTS.href}, {t_ARTIFACTS.orig} FROM {t_ARTIFACTS._name}").fetchall()
+    orig_descs = {i[0]: i[1] for i in orig_descs}
+
+    derpys_tls = {}
+
+    with open(ORIGINAL_DERPYS_LOCAL, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f.read(), "xml")
+        tags = soup.find_all("content")
+
+        for tag in tags:
+            derpy_href = tag.get("contentuid")
+            if derpy_href in orig_descs.keys():
+                text = tag.getText()
+                derpys_tls[derpy_href] = sanitize_description(text)
+
+    for href, derpy_desc in derpys_tls.items():
+        cur.execute(f"""
+            UPDATE {t_ARTIFACTS._name}
+            SET {t_ARTIFACTS.derpys}=?
+            WHERE {t_ARTIFACTS.href}=?
+        """, (derpy_desc, href))
+        conn.commit()

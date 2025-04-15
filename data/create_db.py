@@ -69,10 +69,10 @@ if __name__ == "__main__":
     TEMP_INTERMEDIATE_TABLES = False
 
     print("Parsing for display names for artifacts")
-    parse_artifacts(cur, conn, TEMP_INTERMEDIATE_TABLES)
+    parse_artifacts(cur, conn)
 
     print("Parsing for Derpy's changes")
-    parse_for_derpys_descs()
+    parse_for_derpys_descs(cur, conn)
 
     conn.close()
 
