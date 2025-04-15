@@ -43,8 +43,7 @@ class t_CORE(metaclass=_MetaTable):
 
 def CREATE_TABLE_CORE(cursor, conn, temp=True):
     cursor.execute(f"DROP TABLE IF EXISTS {t_CORE._name}")
-    cursor.execute(
-        f"""
+    cursor.execute(f"""
         CREATE {"TEMP" if temp else ""} TABLE {t_CORE._name} (
             {t_CORE},
 
@@ -54,8 +53,7 @@ def CREATE_TABLE_CORE(cursor, conn, temp=True):
                 {t_CORE.attr}
             )
         )
-        """
-    )
+    """)
     conn.commit()
 
 
@@ -64,13 +62,10 @@ def INSERT_TABLE_CORE(cursor, conn, *args):
     for arg in args:
         kw[arg[0]] = arg[1].strip() if isinstance(arg[1], str) else arg[1]
 
-    cursor.execute(
-        f"""
+    cursor.execute(f"""
         INSERT INTO {t_CORE._name} ({",".join([str(k) for k in kw.keys()])})
         VALUES ({("?," * len(kw)).rstrip(",")})
-        """,
-        tuple(kw.values())
-    )
+    """, tuple(kw.values()))
     conn.commit()
 
 
@@ -83,8 +78,7 @@ class t_NODE_REWARDS(metaclass=_MetaTable):
 
 def CREATE_TABLE_NODE_REWARDS(cursor, conn, temp=True):
     cursor.execute(f"DROP TABLE IF EXISTS {t_NODE_REWARDS._name}")
-    cursor.execute(
-        f"""
+    cursor.execute(f"""
         CREATE {"TEMP" if temp else ""} TABLE {t_NODE_REWARDS._name} (
             {t_NODE_REWARDS},
 
@@ -94,8 +88,7 @@ def CREATE_TABLE_NODE_REWARDS(cursor, conn, temp=True):
                 {t_NODE_REWARDS.node}
             )
         )
-        """
-    )
+    """)
     conn.commit()
 
 
@@ -104,13 +97,10 @@ def INSERT_TABLE_NODE_REWARDS(cursor, conn, *args):
     for arg in args:
         kw[arg[0]] = arg[1].strip() if isinstance(arg[1], str) else arg[1]
 
-    cursor.execute(
-        f"""
+    cursor.execute(f"""
         INSERT OR IGNORE INTO {t_NODE_REWARDS._name} ({",".join([str(k) for k in kw.keys()])})
         VALUES ({("?," * len(kw)).rstrip(",")})
-        """,
-        tuple(kw.values()),
-    )
+    """, tuple(kw.values()))
     conn.commit()
 
 
@@ -127,8 +117,7 @@ class t_NODES(metaclass=_MetaTable):
 
 def CREATE_TABLE_NODES(cursor, conn, temp=False):
     cursor.execute(f"DROP TABLE IF EXISTS {t_NODES._name}")
-    cursor.execute(
-        f"""
+    cursor.execute(f"""
         CREATE {"TEMP" if temp else ""} TABLE {t_NODES._name} (
             {t_NODES},
 
@@ -138,8 +127,7 @@ def CREATE_TABLE_NODES(cursor, conn, temp=False):
                 {t_NODES.attr}
             )
         )
-        """
-    )
+    """)
     conn.commit()
 
 
@@ -154,19 +142,17 @@ class t_DERPYS(metaclass=_MetaTable):
 
 def CREATE_TABLE_DERPYS(cursor, conn, temp=False):
     cursor.execute(f"DROP TABLE IF EXISTS {t_DERPYS._name}")
-    cursor.execute(
-        f"""
-            CREATE {"TEMP" if temp else ""} TABLE {t_DERPYS._name} (
-                {t_DERPYS},
+    cursor.execute(f"""
+        CREATE {"TEMP" if temp else ""} TABLE {t_DERPYS._name} (
+            {t_DERPYS},
 
-                PRIMARY KEY (
-                    {t_DERPYS.aspect}, 
-                    {t_DERPYS.cluster}, 
-                    {t_DERPYS.node}
-                )
+            PRIMARY KEY (
+                {t_DERPYS.aspect}, 
+                {t_DERPYS.cluster}, 
+                {t_DERPYS.node}
             )
-            """
-    )
+        )
+    """)
     conn.commit()
 
 
@@ -182,4 +168,35 @@ def INSERT_TABLE_DERPYS(cursor, conn, *args):
             """,
         tuple(kw.values()),
     )
+    conn.commit()
+
+
+class t_ARTIFACTS(metaclass=_MetaTable):
+    _name = "artifacts"
+    href = _sql_type("href", "TEXT", "NOT NULL")
+    aname = _sql_type("aname", "TEXT", "NOT NULL")
+    orig = _sql_type("orig", "TEXT", "NOT NULL")
+
+
+def CREATE_TABLE_ARTIFACTS(cursor, conn, temp=False):
+    cursor.execute(f"DROP TABLE IF EXISTS {t_ARTIFACTS._name}")
+    cursor.execute(f"""
+        CREATE {"TEMP" if temp else ""} TABLE {t_ARTIFACTS._name} (
+            {t_ARTIFACTS},
+        
+            PRIMARY KEY({t_ARTIFACTS.aname})
+        )
+    """)
+    conn.commit()
+
+
+def INSERT_TABLE_ARTIFACTS(cursor, conn, *args):
+    kw = {}
+    for arg in args:
+        kw[arg[0]] = arg[1].strip() if isinstance(arg[1], str) else arg[1]
+
+    cursor.execute(f"""
+        INSERT OR IGNORE INTO {t_ARTIFACTS._name} ({",".join([str(k) for k in kw.keys()])})
+        VALUES ({("?," * len(kw)).rstrip(",")})
+        """, tuple(kw.values()))
     conn.commit()

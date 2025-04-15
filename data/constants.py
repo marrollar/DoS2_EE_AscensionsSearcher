@@ -9,7 +9,7 @@ MODIFIED_EE_LOCAL = "raw_files/MODIFIED_AMER_UI_Ascension.lsx"
 
 # The path after unpack is:
 # /Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt
-NODE_REWARDS_FILE = "raw_files/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
+NODE_REWARDS_FILE = "raw_files/_ORIGINAL_AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
 
 # This file is found in the unpack of "Derpy's EE2 Tweaks".
 # The path after unpack is:
@@ -21,6 +21,22 @@ DERPYS_CHANGES_FILE = "raw_files/PipsFancyUIStuff.lua"
 # /Mods/Derpy's EE2 tweaks/Localization/English
 ORIGINAL_DERPYS_LOCAL = "raw_files/_ORIGINAL_Derpys_english.xml"
 MODIFIED_DERPYS_LOCAL = "raw_files/MODIFIED_Derpys_english.xml"
+
+# This file is found in the unpack of "Epic_Encounters_Core"
+# The path after unpack is:
+# /Mods/Epic_Encounters_Core/Localization
+ORIGINAL_AMER_ARTIFACTS_NAMES_FILE = "raw_files/_ORIGINAL_AMER_Artifacts.lsx"
+MODIFIED_AMER_ARTIFACTS_NAMES_FILE = "raw_files/MODIFIED_AMER_Artifacts.lsx"
+
+# This file is found in the unpack of "Epic_Encounters_Core"
+# The path after unpack is:
+# /Public/Epic_Encounters_Core/Localization/Stats
+ORIGINAL_AMER_ARTIFACTS_DESC_FILE = "raw_files/_ORIGINAL_Status_CONSUME_DisplayName.lsx"
+MODIFIED_AMER_ARTIFACTS_DESC_FILE = "raw_files/MODIFIED_Status_CONSUME_DisplayName.lsx"
+
+# TODO: description for this file
+EPIPS_ARTIFACTS_FILE = "raw_files/Shared.lua"
+
 
 # --------------------- EE CONSTANTS ---------------------
 EE_KEY_WORDS = [

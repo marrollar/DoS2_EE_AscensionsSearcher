@@ -13,7 +13,6 @@ from constants import (
     DERPYS_LUAFILE_PREFIXES,
     MODIFIED_DERPYS_LOCAL,
 )
-from create_db import cur, conn, TEMP_INTERMEDIATE_TABLES
 from parse_helpers import (
     CoreHelper,
     NodeRewardsHelper,
@@ -36,7 +35,7 @@ from sql import (
 )
 
 
-def parse_for_descriptions():
+def parse_for_descriptions(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
     """
     Parses a character sanitized version of Epic_Encounters_Core/Localization/AMER_UI_Ascension.lsx to extract out the node descriptions for all ascensions.
     There are unused and duplicate descriptions which are not handled in this function; they are handled later.
@@ -100,7 +99,7 @@ def parse_for_descriptions():
                 )
 
 
-def parse_for_corrections():
+def parse_for_corrections(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
     """
     Parses a copy of Epic_Encounters_Core/Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt to determine which node UUIDs are actually used.
     This is used to correlate with the descriptions parsed above to select for the correct node descriptions to use.
@@ -140,7 +139,7 @@ def parse_for_corrections():
                 )
 
             elif any(
-                line.startswith(prefix) for prefix in AMER_SUBNODE_REWARDS_PREFIXES
+                    line.startswith(prefix) for prefix in AMER_SUBNODE_REWARDS_PREFIXES
             ):
                 """
                 Check if the line is one that is giving a character stats or ascension effects.
@@ -161,12 +160,11 @@ def parse_for_corrections():
                 )
 
 
-def create_final_table():
+def create_final_table(cur, conn):
     CREATE_TABLE_NODES(cur, conn, temp=False)
 
     cur.execute("DROP TABLE IF EXISTS tmp_nodes")
-    cur.execute(
-        f"""
+    cur.execute(f"""
         CREATE TEMP TABLE tmp_nodes AS
             WITH
             node_descs AS (
@@ -197,15 +195,14 @@ def create_final_table():
             SELECT * FROM node_descs
             UNION ALL
             SELECT * FROM asc_meta
-        """
-    )
+    """)
     conn.commit()
 
     cur.execute("INSERT INTO nodes SELECT * FROM tmp_nodes")
     conn.commit()
 
 
-def parse_derpys_changes():
+def parse_derpys_changes(cur, conn):
     """
     Parses a copy of Derpy's EE2 tweaks/Story/RawFiles/Lua/PipsFancyUIStuff.lua to extract out the changes from Derpy's mod.
     """
@@ -289,7 +286,7 @@ def parse_derpys_changes():
                     )
 
 
-def rectify_edge_cases():
+def rectify_edge_cases(cur, conn):
     """
     There are 3 edge cases that need to be resolved.
 
@@ -313,20 +310,17 @@ def rectify_edge_cases():
     """
 
     # 1. Get every entry in the 'derpys' table that is considered an addition.
-    derpy_additions = cur.execute(
-        f"""
+    derpy_additions = cur.execute(f"""
         SELECT 
             {t_DERPYS.cluster}, 
             {t_DERPYS.node},
             {t_DERPYS.description}
         FROM {t_DERPYS._name} WHERE {t_DERPYS.is_addition}=1
-        """
-    ).fetchall()
+    """).fetchall()
 
     # 2. Get every entry in the 'nodes' table that corresponds is the same (cluster, node) pair
     for cluster, node, desc in derpy_additions:
-        nodes_entry = cur.execute(
-            f"""
+        nodes_entry = cur.execute(f"""
             SELECT
                 {t_NODES.cluster},
                 {t_NODES.attr},
@@ -335,9 +329,10 @@ def rectify_edge_cases():
             WHERE
                 {t_NODES.cluster}=? AND
                 {t_NODES.attr}=?
-            """,
-            (cluster, node),
-        ).fetchall()
+        """, (
+            cluster,
+            node
+        )).fetchall()
 
         # 2.1 If such an entry exists
         if len(nodes_entry) > 0:
@@ -345,16 +340,17 @@ def rectify_edge_cases():
             existing_desc = nodes_entry[0][2]
 
             # 3. Update the 'derpys' description to also have the original description in front of Derpy's description.
-            cur.execute(
-                f"""
+            cur.execute(f"""
                 UPDATE {t_DERPYS._name}
                 SET {t_DERPYS.description}=?
                 WHERE
                     {t_DERPYS.cluster}=? AND
                     {t_DERPYS.node}=?
-                """,
-                (f"{existing_desc}<br>{desc}", cluster, node),
-            )
+            """, (
+                f"{existing_desc}<br>{desc}",
+                cluster,
+                node
+            ))
             conn.commit()
 
         """
@@ -378,13 +374,10 @@ def rectify_edge_cases():
                 content_id = tag.get("contentuid")
 
                 # 2. Get the entry in 'nodes' that corresponds with the current tag
-                node_data = cur.execute(
-                    f"""
+                node_data = cur.execute(f"""
                     SELECT * FROM {t_NODES._name}
                     WHERE {t_NODES.href}=?
-                    """,
-                    (content_id,),
-                ).fetchall()
+                """, (content_id,)).fetchall()
 
                 # 2.1 If such an entry exists
                 if len(node_data) > 0:
@@ -409,22 +402,19 @@ def rectify_edge_cases():
                     ).get_text()
 
                     if not descs_are_same(
-                        raw_desc, raw_derpys_local_text, threshold=0.95
+                            raw_desc, raw_derpys_local_text, threshold=0.95
                     ):
-                        cur.execute(
-                            f"""
+                        cur.execute(f"""
                             INSERT INTO {t_DERPYS._name} ({t_DERPYS.aspect}, {t_DERPYS.cluster}, {t_DERPYS.node}, {t_DERPYS.description}, {t_DERPYS.is_addition})
                             VALUES (?,?,?,?,?)
                             ON CONFLICT({t_DERPYS.aspect}, {t_DERPYS.cluster}, {t_DERPYS.node}) DO UPDATE SET
                                 {t_DERPYS.description}=?
-                            """,
-                            (
-                                aspect,
-                                cluster,
-                                node,
-                                derpys_local_text,
-                                0,
-                                derpys_local_text,
-                            ),
-                        )
+                        """, (
+                            aspect,
+                            cluster,
+                            node,
+                            derpys_local_text,
+                            0,
+                            derpys_local_text,
+                        ))
                         conn.commit()

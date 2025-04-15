@@ -3,6 +3,7 @@ import os
 import shutil
 import sqlite3
 
+from artifacts_pipeline import parse_artifacts, parse_for_derpys_descs
 from ascensions_pipeline import (
     parse_for_descriptions,
     parse_for_corrections,
@@ -14,7 +15,8 @@ from constants import (
     MODIFIED_EE_LOCAL,
     ORIGINAL_EE_LOCAL,
     ORIGINAL_DERPYS_LOCAL,
-    MODIFIED_DERPYS_LOCAL,
+    MODIFIED_DERPYS_LOCAL, ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE,
+    ORIGINAL_AMER_ARTIFACTS_DESC_FILE, MODIFIED_AMER_ARTIFACTS_DESC_FILE,
 )
 from parse_helpers import clean_bad_chars
 from sql import DB_NAME, ORM_DIR
@@ -29,31 +31,48 @@ if __name__ == "__main__":
     parser.add_argument(
         "--with-overwrite",
         help="Allows the file to automatically copy the final database over to the website and overwrite an existing "
-        "one there.",
+             "one there.",
         action="store_true",
     )
 
     args = parser.parse_args()
     print(args)
 
+    """ Ascensions Processing """
+
     print("Sanitizing localization files")
     clean_bad_chars(ORIGINAL_EE_LOCAL, MODIFIED_EE_LOCAL)
     clean_bad_chars(ORIGINAL_DERPYS_LOCAL, MODIFIED_DERPYS_LOCAL)
 
     print("Parsing for descriptions")
-    parse_for_descriptions()
+    parse_for_descriptions(cur, conn, TEMP_INTERMEDIATE_TABLES)
 
     print("Parsing for corrections")
-    parse_for_corrections()
+    parse_for_corrections(cur, conn, TEMP_INTERMEDIATE_TABLES)
 
     print("Creating final ground truth table")
-    create_final_table()
+    create_final_table(cur, conn)
 
     print("Parsing for Derpy's changes")
-    parse_derpys_changes()
+    parse_derpys_changes(cur, conn)
 
     print("Fixing edge cases")
-    rectify_edge_cases()
+    rectify_edge_cases(cur, conn)
+
+    """ Artifacts Processing """
+
+    print("Sanitizing artifact files")
+    clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE)
+    clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_DESC_FILE, MODIFIED_AMER_ARTIFACTS_DESC_FILE)
+
+    # TODO: Remove
+    TEMP_INTERMEDIATE_TABLES = False
+
+    print("Parsing for display names for artifacts")
+    parse_artifacts(cur, conn, TEMP_INTERMEDIATE_TABLES)
+
+    print("Parsing for Derpy's changes")
+    parse_for_derpys_descs()
 
     conn.close()
 

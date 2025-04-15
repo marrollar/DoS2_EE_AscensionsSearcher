@@ -18,6 +18,7 @@ def clean_bad_chars(orig_path, modified_path):
         text = f.read()
         text = text.replace("\u2019", "'")
         text = text.replace("\u00bb", ">")
+        text = text.replace("\uFEFF", "")
 
     with open(modified_path, "w") as f:
         f.write(text)
