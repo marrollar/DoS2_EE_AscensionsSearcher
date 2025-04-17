@@ -3,7 +3,7 @@ import os
 import shutil
 import sqlite3
 
-from artifacts_pipeline import parse_artifacts, parse_for_derpys_descs
+from artifacts_pipeline import parse_artifacts
 from ascensions_pipeline import (
     parse_for_descriptions,
     parse_for_corrections,
@@ -15,11 +15,13 @@ from constants import (
     MODIFIED_EE_LOCAL,
     ORIGINAL_EE_LOCAL,
     ORIGINAL_DERPYS_LOCAL,
-    MODIFIED_DERPYS_LOCAL, ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE,
-    ORIGINAL_AMER_ARTIFACTS_DESC_FILE, MODIFIED_AMER_ARTIFACTS_DESC_FILE,
+    MODIFIED_DERPYS_LOCAL, ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE, AMER_ICONS_DDS,
+    AMER_ICONS_LSX,
 )
 from parse_helpers import clean_bad_chars
 from sql import DB_NAME, ORM_DIR
+
+from icon_ripper import rip_icons
 
 TEMP_INTERMEDIATE_TABLES = True
 
@@ -61,18 +63,21 @@ if __name__ == "__main__":
 
     """ Artifacts Processing """
 
-    print("Sanitizing artifact files")
-    clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE)
-    clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_DESC_FILE, MODIFIED_AMER_ARTIFACTS_DESC_FILE)
+    print("Extracting icons from dds file")
+    rip_icons(AMER_ICONS_DDS, AMER_ICONS_LSX)
 
-    # TODO: Remove
-    TEMP_INTERMEDIATE_TABLES = False
-
+    # print("Sanitizing artifact files")
+    # clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE)
+    # clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_DESC_FILE, MODIFIED_AMER_ARTIFACTS_DESC_FILE)
+    #
     print("Parsing for display names for artifacts")
     parse_artifacts(cur, conn)
-
-    print("Parsing for Derpy's changes")
-    parse_for_derpys_descs(cur, conn)
+    #
+    # print("Parsing for Derpy's changes")
+    # parse_for_derpys_descs(cur, conn)
+    #
+    # print("Parsing for icon references")
+    # parse_for_icons(cur, conn)
 
     conn.close()
 
