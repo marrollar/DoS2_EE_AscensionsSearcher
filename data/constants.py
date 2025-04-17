@@ -9,7 +9,9 @@ MODIFIED_EE_LOCAL = "raw_files/MODIFIED_AMER_UI_Ascension.lsx"
 
 # The path after unpack is:
 # /Story/RawFiles/Goals/AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt
-NODE_REWARDS_FILE = "raw_files/_ORIGINAL_AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
+NODE_REWARDS_FILE = (
+    "raw_files/_ORIGINAL_AMER_GLO_UI_Ascension_NodeRewards_Definitions.txt"
+)
 
 # This file is found in the unpack of "Derpy's EE2 Tweaks".
 # The path after unpack is:
@@ -37,6 +39,8 @@ MODIFIED_AMER_ARTIFACTS_DESC_FILE = "raw_files/MODIFIED_Status_CONSUME_DisplayNa
 # TODO: description for this file
 EPIPS_ARTIFACTS_FILE = "raw_files/Shared.lua"
 
+AMER_ICONS_IMGS = "raw_files/AMER_Icons_Master.dds"
+AMER_ICONS_META = "raw_files/AMER_ICONS_Master.lsx"
 
 # --------------------- EE CONSTANTS ---------------------
 EE_KEY_WORDS = [

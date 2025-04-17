@@ -2,8 +2,14 @@ import re
 import string
 
 from bs4 import BeautifulSoup
-
-from constants import MODIFIED_AMER_ARTIFACTS_DESC_FILE, EPIPS_ARTIFACTS_FILE, HTML_GT, ORIGINAL_DERPYS_LOCAL
+from constants import (
+    EE_KEY_WORDS,
+    EPIPS_ARTIFACTS_FILE,
+    HTML_COLOR_KEYWORD,
+    HTML_GT,
+    MODIFIED_AMER_ARTIFACTS_DESC_FILE,
+    ORIGINAL_DERPYS_LOCAL,
+)
 from sql import CREATE_TABLE_ARTIFACTS, INSERT_TABLE_ARTIFACTS, t_ARTIFACTS
 
 # Don't touch this unless you know what you're doing
@@ -73,8 +79,8 @@ def sanitize_description(desc):
         desc
         .replace('Artifact Power:<font size="17">', "")
         .replace("</font>", "")
-        .replace("<br>- ", HTML_GT, 1)
-        .replace("<br>- ", f"<br>{HTML_GT}")
+        .replace("<br>- ", f"{HTML_GT} ", 1)
+        .replace("<br>- ", f"<br>{HTML_GT} ")
     )
 
 
@@ -107,6 +113,9 @@ def parse_artifacts(cur, conn):
                 display_name = artifact_names[simplified_name]
                 desc = sanitize_description(content.get("value"))
 
+                for keyword in EE_KEY_WORDS:
+                    desc = desc.replace(keyword, HTML_COLOR_KEYWORD(keyword))
+
                 INSERT_TABLE_ARTIFACTS(
                     cur,
                     conn,
@@ -133,6 +142,9 @@ def parse_for_derpys_descs(cur, conn):
                 derpys_tls[derpy_href] = sanitize_description(text)
 
     for href, derpy_desc in derpys_tls.items():
+        for keyword in EE_KEY_WORDS:
+            derpy_desc = derpy_desc.replace(keyword, HTML_COLOR_KEYWORD(keyword))
+
         cur.execute(f"""
             UPDATE {t_ARTIFACTS._name}
             SET {t_ARTIFACTS.derpys}=?
