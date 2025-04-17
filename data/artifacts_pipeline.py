@@ -1,15 +1,17 @@
+import os
 import re
 import string
 
 from bs4 import BeautifulSoup
-
 from constants import (
-    EE_KEY_WORDS,
-    HTML_COLOR_KEYWORD,
+    EE_ARTIFACTS_DESC_FILE,
+    EE_ROOT_TEMPLATES,
+    EPIP_ARTIFACTS_FILE,
     HTML_GT,
-    ORIGINAL_DERPYS_LOCAL, EPIP_ARTIFACTS_FILE,
+    ORIGINAL_DERPYS_LOCAL,
 )
-from sql import CREATE_TABLE_ARTIFACTS, t_ARTIFACTS, INSERT_TABLE_ARTIFACTS
+from sql import CREATE_TABLE_ARTIFACTS, INSERT_TABLE_ARTIFACTS, t_ARTIFACTS
+from tqdm import tqdm
 
 # Don't touch this unless you know what you're doing
 # Every line is rather particular
@@ -24,14 +26,14 @@ THE_NUCLEAR_OPTION = r"""
 \s+DescriptionHandle = "\S+",
 \s+},)"""
 
-# Same as above
-AMER_ICONS_NUCLEAR_OPTION = r"""
-((new entry "AMER_ARTIFACTPOWER_[A-Z]+_DISPLAY")
-(type "StatusData")
-(data "StatusType" "CONSUME")
-(data "Description" "AMER_ARTIFACTPOWER_[A-Z]+_DISPLAY_Description")
-(^data "DescriptionRef" ".+")
-(^data "Icon" "AMER_.+"))"""
+# # Same as above
+# AMER_ICONS_NUCLEAR_OPTION = r"""
+# ((new entry "AMER_ARTIFACTPOWER_[A-Z]+_DISPLAY")
+# (type "StatusData")
+# (data "StatusType" "CONSUME")
+# (data "Description" "AMER_ARTIFACTPOWER_[A-Z]+_DISPLAY_Description")
+# (^data "DescriptionRef" ".+")
+# (^data "Icon" "AMER_.+"))"""
 
 
 def no_punctuation(s):
@@ -80,15 +82,14 @@ def sanitize_description(desc):
     )
 
 
-def parse_artifacts(cur, conn):
+def parse_artifacts_geartype(cur, conn):
     CREATE_TABLE_ARTIFACTS(cur, conn)
-
     artifact_names = {}
 
     with open(EPIP_ARTIFACTS_FILE, "r", encoding="utf-8") as f:
         pattern = re.compile(THE_NUCLEAR_OPTION)
 
-        for match in re.finditer(pattern, f.read()):
+        for match in tqdm(re.finditer(pattern, f.read()), desc="Parsing for display names for artifacts"):
             tokens = match.group(0).split("\n")
 
             artifact_name = tokens[1].split("=")[0].strip().split("_")[1]
@@ -101,104 +102,88 @@ def parse_artifacts(cur, conn):
                 "slot": slot
             }
 
-    print(artifact_names)
-
-    # with open(MODIFIED_AMER_ARTIFACTS_DESC_FILE, "r", encoding="utf-8") as f:
-    #     soup = BeautifulSoup(f.read(), "xml")
-    #     tl_nodes = soup.find_all(name="node", id="TranslatedStringKey")
-    #
-    #     for node in tl_nodes:
-    #         # Entries look like: AMER_ARTIFACTPOWER_ABSENCE_DisplayName
-    #         uuid = node.find("attribute", id="UUID").get("value")
-    #
-    #         if uuid.startswith("AMER_ARTIFACTPOWER_"):
-    #             simplified_name = no_punctuation(uuid.split("_")[2])
-    #             content = node.find("attribute", id="Content")
-    #
-    #             href = content.get("handle")
-    #             display_name = artifact_names[simplified_name]["name"]
-    #             slot = artifact_names[simplified_name]["slot"]
-    #             desc = sanitize_description(content.get("value"))
-    #
-    #             for keyword in EE_KEY_WORDS:
-    #                 desc = desc.replace(keyword, HTML_COLOR_KEYWORD(keyword))
-    #
-    #             INSERT_TABLE_ARTIFACTS(
-    #                 cur,
-    #                 conn,
-    #                 (t_ARTIFACTS.href, href),
-    #                 (t_ARTIFACTS.aname, display_name),
-    #                 (t_ARTIFACTS.orig, desc),
-    #                 (t_ARTIFACTS.slot, slot)
-    #             )
+    return artifact_names
 
 
-# def parse_for_derpys_descs(cur, conn):
-#     orig_descs = cur.execute(f"SELECT {t_ARTIFACTS.href}, {t_ARTIFACTS.orig} FROM {t_ARTIFACTS._name}").fetchall()
-#     orig_descs = {i[0]: i[1] for i in orig_descs}
-#
-#     derpys_tls = {}
-#
-#     with open(ORIGINAL_DERPYS_LOCAL, "r", encoding="utf-8") as f:
-#         soup = BeautifulSoup(f.read(), "xml")
-#         tags = soup.find_all("content")
-#
-#         for tag in tags:
-#             derpy_href = tag.get("contentuid")
-#             if derpy_href in orig_descs.keys():
-#                 text = tag.getText()
-#                 derpys_tls[derpy_href] = sanitize_description(text)
-#
-#     for href, derpy_desc in derpys_tls.items():
-#         for keyword in EE_KEY_WORDS:
-#             derpy_desc = derpy_desc.replace(keyword, HTML_COLOR_KEYWORD(keyword))
-#
-#         cur.execute(f"""
-#             UPDATE {t_ARTIFACTS._name}
-#             SET {t_ARTIFACTS.derpys}=?
-#             WHERE {t_ARTIFACTS.href}=?
-#         """, (derpy_desc, href))
-#         conn.commit()
-#
-#
-# def parse_for_icons(cur, conn):
-#     all_artifacts = cur.execute(f"""
-#         SELECT {t_ARTIFACTS.href}, {t_ARTIFACTS.aname}, {t_ARTIFACTS.orig}
-#         FROM {t_ARTIFACTS._name}
-#     """).fetchall()
-#     all_artifacts = {no_punctuation(name): {"href": href, "desc": orig} for href, name, orig in all_artifacts}
-#
-#     with open(AMER_ARTIFACTS_ICON_REF_FILE, "r", encoding="utf-8") as f:
-#         pattern = re.compile(AMER_ICONS_NUCLEAR_OPTION, re.MULTILINE)
-#
-#         for match in re.finditer(pattern, f.read()):
-#             groups = match.groups()
-#
-#             name = no_punctuation(groups[1].split("_")[2])
-#             desc = groups[5]
-#             icon_ref = groups[6].split(" ")[2].strip('"').strip('" ')
-#
-#             desc = desc[desc.index(" ", desc.index(" ") + 1):].strip('" ')
-#             desc = sanitize_description(desc)
-#
-#             for keyword in EE_KEY_WORDS:
-#                 desc = desc.replace(keyword, HTML_COLOR_KEYWORD(keyword))
-#
-#             href = all_artifacts[name]["href"]
-#
-#             cur.execute(f"""
-#                 UPDATE {t_ARTIFACTS._name}
-#                 SET {t_ARTIFACTS.icon} = ?
-#                 WHERE {t_ARTIFACTS.href} = ?
-#             """, (icon_ref, href))
-#             conn.commit()
-#
-#             orig_text = BeautifulSoup(all_artifacts[name]["desc"], "html.parser").get_text()
-#             cur_text = BeautifulSoup(desc, "html.parser").get_text()
-#
-#             if orig_text != cur_text:
-#                 print(name)
-#                 print(orig_text)
-#                 print(cur_text)
-#                 print()
-#
+def parse_artifacts_icons(artifacts):
+    for file_path in tqdm(os.listdir(EE_ROOT_TEMPLATES), desc="Parsing for icon references for artifacts"):
+        rel_path = os.path.join(EE_ROOT_TEMPLATES, file_path)
+
+        if rel_path.endswith(".lsx") and not file_path.startswith("_merged"):
+            with open(rel_path, "r", encoding="utf-8") as f:
+                soup = BeautifulSoup(f.read(), "xml")
+
+                try:
+                    name = soup.find("attribute", id="Stats").get("value").split("_")[-1]
+                    icon = soup.find("attribute", id="Icon").get("value")
+
+                    try:
+                        artifacts[no_punctuation(name)]["icon"] = icon
+                    except KeyError:
+                        continue
+                except AttributeError:
+                    continue
+
+    for v in artifacts.values():
+        assert len(v) == 3
+
+    return artifacts
+
+
+def parse_orig_artifact_descriptions(artifacts):
+    with open(EE_ARTIFACTS_DESC_FILE, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f.read(), "xml")
+
+        for node in tqdm(soup.find_all("node", id="TranslatedStringKey"),
+                         desc="Parsing for original descriptions for artifacts"):
+
+            href = node.find("attribute", id="Content").get("handle")
+            desc = node.find("attribute", id="Content").get("value")
+            uuid = node.find("attribute", id="UUID").get("value")
+
+            if uuid.startswith("AMER_ARTIFACTPOWER_"):
+                desc = sanitize_description(desc)
+                name = no_punctuation(uuid.split("_")[2])
+
+                artifacts[name]["href"] = href
+                artifacts[name]["orig"] = desc
+
+    for v in artifacts.values():
+        assert len(v) == 5
+
+    return artifacts
+
+
+def parse_derpys_artifact_descriptions(cur, conn, artifacts):
+    with open(ORIGINAL_DERPYS_LOCAL, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f.read(), "xml")
+
+        for content_node in tqdm(soup.find_all("content"), desc="Parsing for Derpy's artifact changes"):
+            href = content_node.get("contentuid")
+            desc = sanitize_description(content_node.get_text())
+
+            for k, v in artifacts.items():
+                if href == v["href"]:
+                    artifacts[k]["derpys"] = desc
+
+    for v in artifacts.values():
+        name = v["name"]
+        slot = v["slot"]
+        icon = v["icon"]
+        href = v["href"]
+        orig = v["orig"]
+        try:
+            derpys = v["derpys"]
+        except KeyError:
+            derpys = ""
+
+        INSERT_TABLE_ARTIFACTS(
+            cur,
+            conn,
+            (t_ARTIFACTS.href, href),
+            (t_ARTIFACTS.aname, name),
+            (t_ARTIFACTS.orig, orig),
+            (t_ARTIFACTS.derpys, derpys),
+            (t_ARTIFACTS.icon, icon),
+            (t_ARTIFACTS.slot, slot)
+        )

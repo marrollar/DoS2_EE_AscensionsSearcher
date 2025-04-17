@@ -4,7 +4,6 @@ from difflib import SequenceMatcher
 
 from constants import EE_KEY_WORDS, HTML_COLOR_KEYWORD, HTML_GT
 
-
 # "tns" for "tokenize and sanitize"
 
 def clean_bad_chars(orig_path, modified_path):

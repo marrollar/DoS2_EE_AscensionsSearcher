@@ -3,25 +3,31 @@ import os
 import shutil
 import sqlite3
 
-from artifacts_pipeline import parse_artifacts
+from artifacts_pipeline import (
+    parse_artifacts_geartype,
+    parse_artifacts_icons,
+    parse_derpys_artifact_descriptions,
+    parse_orig_artifact_descriptions,
+)
 from ascensions_pipeline import (
-    parse_for_descriptions,
-    parse_for_corrections,
     create_final_table,
     parse_derpys_changes,
+    parse_for_corrections,
+    parse_for_descriptions,
     rectify_edge_cases,
 )
 from constants import (
-    MODIFIED_EE_LOCAL,
-    ORIGINAL_EE_LOCAL,
-    ORIGINAL_DERPYS_LOCAL,
-    MODIFIED_DERPYS_LOCAL, ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE, AMER_ICONS_DDS,
+    AMER_ICONS_DDS,
     AMER_ICONS_LSX,
+    MODIFIED_DERPYS_LOCAL,
+    MODIFIED_EE_LOCAL,
+    ORIGINAL_DERPYS_LOCAL,
+    ORIGINAL_EE_LOCAL,
 )
+from icon_ripper import rip_icons
 from parse_helpers import clean_bad_chars
 from sql import DB_NAME, ORM_DIR
-
-from icon_ripper import rip_icons
+from tqdm import tqdm
 
 TEMP_INTERMEDIATE_TABLES = True
 
@@ -38,46 +44,27 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    print(args)
 
     """ Ascensions Processing """
 
-    print("Sanitizing localization files")
+    tqdm.write("Sanitizing localization files")
     clean_bad_chars(ORIGINAL_EE_LOCAL, MODIFIED_EE_LOCAL)
     clean_bad_chars(ORIGINAL_DERPYS_LOCAL, MODIFIED_DERPYS_LOCAL)
 
-    print("Parsing for descriptions")
     parse_for_descriptions(cur, conn, TEMP_INTERMEDIATE_TABLES)
-
-    print("Parsing for corrections")
     parse_for_corrections(cur, conn, TEMP_INTERMEDIATE_TABLES)
-
-    print("Creating final ground truth table")
     create_final_table(cur, conn)
-
-    print("Parsing for Derpy's changes")
     parse_derpys_changes(cur, conn)
-
-    print("Fixing edge cases")
     rectify_edge_cases(cur, conn)
 
     """ Artifacts Processing """
 
-    print("Extracting icons from dds file")
     rip_icons(AMER_ICONS_DDS, AMER_ICONS_LSX)
 
-    # print("Sanitizing artifact files")
-    # clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_NAMES_FILE, MODIFIED_AMER_ARTIFACTS_NAMES_FILE)
-    # clean_bad_chars(ORIGINAL_AMER_ARTIFACTS_DESC_FILE, MODIFIED_AMER_ARTIFACTS_DESC_FILE)
-    #
-    print("Parsing for display names for artifacts")
-    parse_artifacts(cur, conn)
-    #
-    # print("Parsing for Derpy's changes")
-    # parse_for_derpys_descs(cur, conn)
-    #
-    # print("Parsing for icon references")
-    # parse_for_icons(cur, conn)
+    artifacts = parse_artifacts_geartype(cur, conn)
+    artifacts = parse_artifacts_icons(artifacts)
+    artifacts = parse_orig_artifact_descriptions(artifacts)
+    parse_derpys_artifact_descriptions(cur, conn, artifacts)
 
     conn.close()
 

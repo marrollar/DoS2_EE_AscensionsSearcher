@@ -5,13 +5,14 @@
 
 
 import math
+import os
 import re
-import sys
+import shutil
+import warnings
 
 from PIL import Image
-
-from constants import AMER_ICONS_DDS
-import shutil
+from sql import ORM_DIR
+from tqdm import tqdm
 
 # outputs all sprites from an atlas as separate named .pngs. Requires the atlas image and its respective .lsx file (which is what contains the image names and UV maps)
 
@@ -21,17 +22,9 @@ import shutil
 
 # note: Pillow does not support .dds, so you must export the atlases as png or some other format first.
 
+
 # FILE = AMER_ICONS_IMGS
 def rip_icons(DDS, LSX, move=False):
-    # split = FILE.split(".")
-    #
-    # if len(split) > 0:
-    #     LSX = (
-    #         FILE.replace("." + split[len(split) - 1], "") + ".lsx"
-    #     )  # replace extension with .lsx
-    # else:
-    #     LSX = FILE + ".lsx"  # edgecase where the atlas file has no extension, I guess.
-
     img = Image.open(DDS)
     data = open(LSX)
 
@@ -51,7 +44,7 @@ def rip_icons(DDS, LSX, move=False):
 
     search = re.findall(regex, data.read())
     count = 0
-    for x in search:
+    for x in tqdm(search, desc="Extracting icons from dds file"):
         # apparently group names don't work when using findall so we map them again here
         iconData = {
             "Id": x[1],
@@ -72,10 +65,13 @@ def rip_icons(DDS, LSX, move=False):
         cropped = img.crop(region)
         filename = iconData["Id"] + ".png"
 
-        print(filename)
-        print(region)
-
-        cropped.save("Output/" + filename)
+        cropped.save("artifact_icons/" + filename)
         count += 1
-    print("Done, " + str(count) + " files total")
 
+    if move:
+        if os.path.exists(os.path.join(ORM_DIR, "artifact_icons")):
+            warnings.warn(
+                "Please remove existing icons folder in the web server before running the script."
+            )
+        else:
+            shutil.move("artifact_icons", os.path.join(ORM_DIR, "artifact_icons"))

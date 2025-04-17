@@ -2,37 +2,39 @@ import os
 
 import bs4
 from bs4 import BeautifulSoup
-
 from constants import (
-    MODIFIED_EE_LOCAL,
     AMER_LOCAL_PREFIXES,
-    NODE_REWARDS_FILE,
     AMER_NODE_REWARDS_PREFIX,
     AMER_SUBNODE_REWARDS_PREFIXES,
     DERPYS_CHANGES_FILE,
     DERPYS_LUAFILE_PREFIXES,
     MODIFIED_DERPYS_LOCAL,
+    MODIFIED_EE_LOCAL,
+    NODE_REWARDS_FILE,
 )
 from parse_helpers import (
     CoreHelper,
-    NodeRewardsHelper,
     DerpysAdditionsHelper,
     DerpysReplacementsHelper,
+    NodeRewardsHelper,
     descs_are_same,
 )
 from sql import (
     CREATE_TABLE_CORE,
-    INSERT_TABLE_CORE,
-    t_CORE,
-    CREATE_TABLE_NODE_REWARDS,
-    INSERT_TABLE_NODE_REWARDS,
-    t_NODE_REWARDS as t_NR,
-    CREATE_TABLE_NODES,
     CREATE_TABLE_DERPYS,
+    CREATE_TABLE_NODE_REWARDS,
+    CREATE_TABLE_NODES,
+    INSERT_TABLE_CORE,
     INSERT_TABLE_DERPYS,
+    INSERT_TABLE_NODE_REWARDS,
+    t_CORE,
     t_DERPYS,
     t_NODES,
 )
+from sql import (
+    t_NODE_REWARDS as t_NR,
+)
+from tqdm import tqdm
 
 
 def parse_for_descriptions(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
@@ -68,7 +70,7 @@ def parse_for_descriptions(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
         soup = BeautifulSoup(f.read(), "xml")
         tl_nodes = soup.find_all(id="TranslatedStringKey")
 
-        for node in tl_nodes:
+        for node in tqdm(tl_nodes, desc="Parsing for descriptions"):
             uuid = node.find("attribute", id="UUID").get("value")
 
             if any(uuid.startswith(prefix) for prefix in AMER_LOCAL_PREFIXES):
@@ -111,7 +113,7 @@ def parse_for_corrections(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
     CREATE_TABLE_NODE_REWARDS(cur, conn, temp=TEMP_INTERMEDIATE_TABLES)
 
     with open(NODE_REWARDS_FILE, "r") as f:
-        for line in f:
+        for line in tqdm(f, desc="Parsing for corrections"):
             if any(line.startswith(prefix) for prefix in AMER_NODE_REWARDS_PREFIX):
                 """
                 Check if the line is one that is adding the graph links between nodes
@@ -161,6 +163,7 @@ def parse_for_corrections(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
 
 
 def create_final_table(cur, conn):
+    tqdm.write("Creating final ground truth table")
     CREATE_TABLE_NODES(cur, conn, temp=False)
 
     cur.execute("DROP TABLE IF EXISTS tmp_nodes")
@@ -216,7 +219,7 @@ def parse_derpys_changes(cur, conn):
     PARSE_STATE = STATE_NONE
 
     with open(DERPYS_CHANGES_FILE, "r") as f:
-        for line in f:
+        for line in tqdm(f, desc="Parsing for Derpy's changes"):
             line = line.strip()
             if line.startswith(DERPYS_LUAFILE_PREFIXES[0]):
                 """
@@ -308,6 +311,7 @@ def rectify_edge_cases(cur, conn):
     If the 'nodes' table already has such a node, we assume it is an added effect.
     If such a node does not exist, we assume it is a new node entirely.
     """
+    tqdm.write("Fixing edge cases")
 
     # 1. Get every entry in the 'derpys' table that is considered an addition.
     derpy_additions = cur.execute(f"""

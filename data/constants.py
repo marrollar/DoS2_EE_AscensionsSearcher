@@ -41,9 +41,15 @@ MODIFIED_AMER_ARTIFACTS_NAMES_FILE = "raw_files/MODIFIED_AMER_Artifacts.lsx"
 AMER_ICONS_DDS = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/Assets/Textures/Icons/AMER_Icons_Master.dds"
 AMER_ICONS_LSX = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/GUI/AMER_Icons_Master.lsx"
 
-# This file is foudn in the unpack of "EpipEncounters"
+# This file is found in the unpack of "EpipEncounters"
 # EPIPS_ARTIFACTS_FILE = "raw_files/Shared.lua"
 EPIP_ARTIFACTS_FILE = f"../unpacks/Epip/Mods/EpipEncounters_{EpipE_MODID}/Story/RawFiles/Lua/Utilities/Artifact/Shared.lua"
+
+# This file is found in the unpack of "Epic_Encounters_Core"
+EE_ROOT_TEMPLATES = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/RootTemplates/"
+
+# This file is found in the unpack of Epic_Encounters_Core
+EE_ARTIFACTS_DESC_FILE = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/Localization/Stats/Status_CONSUME_DisplayName.lsx"
 
 # This file is found in the unpack of "Epic_Encounters_Core"
 # The path after unpack is:
