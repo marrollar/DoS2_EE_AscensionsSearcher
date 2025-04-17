@@ -22,9 +22,21 @@ from tqdm import tqdm
 
 # note: Pillow does not support .dds, so you must export the atlases as png or some other format first.
 
+REGEX = """
+(\s+<node id="IconUV">
+\s+<attribute id="MapKey" value="(?P<Id>.*)" type="22" \/>
+\s+<attribute id="U1" value="(?P<U1>.*)" type="6" \/>
+\s+<attribute id="U2" value="(?P<U2>.*)" type="6" \/>
+\s+<attribute id="V1" value="(?P<V1>.*)" type="6" \/>
+\s+<attribute id="V2" value="(?P<V2>.*)" type="6" \/>
+\s+<\/node>)"""
+
 
 # FILE = AMER_ICONS_IMGS
 def rip_icons(DDS, LSX, move=False):
+    if not os.path.isdir("artifact_icons"):
+        os.mkdir("artifact_icons")
+
     img = Image.open(DDS)
     data = open(LSX)
 
@@ -33,14 +45,7 @@ def rip_icons(DDS, LSX, move=False):
     )  # this is how much % of the width or height a pixel is. Used to figure out pixel values of each icon from its UV mapping. All sprite atlases seem to be square so we don't check both the width and height
 
     # regex for a sprite entry in the lsx files
-    regex = re.compile("""
-                    (<node id="IconUV">
-                        <attribute id="MapKey" value="(?P<Id>.*)" type="22" />
-                        <attribute id="U1" value="(?P<U1>.*)" type="6" />
-                        <attribute id="U2" value="(?P<U2>.*)" type="6" />
-                        <attribute id="V1" value="(?P<V1>.*)" type="6" />
-                        <attribute id="V2" value="(?P<V2>.*)" type="6" />
-                    </node>)""")
+    regex = re.compile(REGEX)
 
     search = re.findall(regex, data.read())
     count = 0
@@ -70,8 +75,8 @@ def rip_icons(DDS, LSX, move=False):
 
     if move:
         if os.path.exists(os.path.join(ORM_DIR, "artifact_icons")):
-            warnings.warn(
-                "Please remove existing icons folder in the web server before running the script."
+            tqdm.write(
+                "\033[93m[WARNING] Please remove existing icons folder in the web server before running the script.\033[0m"
             )
         else:
-            shutil.move("artifact_icons", os.path.join(ORM_DIR, "artifact_icons"))
+            shutil.move("artifact_icons", ORM_DIR)

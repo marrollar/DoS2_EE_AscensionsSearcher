@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     """ Artifacts Processing """
 
-    rip_icons(AMER_ICONS_DDS, AMER_ICONS_LSX)
+    rip_icons(AMER_ICONS_DDS, AMER_ICONS_LSX, move=True)
 
     artifacts = parse_artifacts_geartype(cur, conn)
     artifacts = parse_artifacts_icons(artifacts)

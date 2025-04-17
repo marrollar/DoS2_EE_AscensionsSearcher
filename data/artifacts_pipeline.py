@@ -8,7 +8,7 @@ from constants import (
     EE_ROOT_TEMPLATES,
     EPIP_ARTIFACTS_FILE,
     HTML_GT,
-    ORIGINAL_DERPYS_LOCAL,
+    ORIGINAL_DERPYS_LOCAL, EE_KEY_WORDS, HTML_COLOR_KEYWORD,
 )
 from sql import CREATE_TABLE_ARTIFACTS, INSERT_TABLE_ARTIFACTS, t_ARTIFACTS
 from tqdm import tqdm
@@ -176,6 +176,11 @@ def parse_derpys_artifact_descriptions(cur, conn, artifacts):
             derpys = v["derpys"]
         except KeyError:
             derpys = ""
+
+        for keyword in EE_KEY_WORDS:
+            orig = orig.replace(keyword, HTML_COLOR_KEYWORD(keyword))
+        for keyword in EE_KEY_WORDS:
+            derpys = derpys.replace(keyword, HTML_COLOR_KEYWORD(keyword))
 
         INSERT_TABLE_ARTIFACTS(
             cur,
