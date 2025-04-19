@@ -34,4 +34,6 @@ model artifacts {
   aname  String  @id
   orig   String
   derpys String? @default("")
+  icon   String? @default("")
+  slot   String? @default("")
 }

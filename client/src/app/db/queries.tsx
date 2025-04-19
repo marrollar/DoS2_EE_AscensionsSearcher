@@ -52,3 +52,15 @@ export async function getOriginal_SubNodes_By_Cluster(cluster: string) {
         }
     })
 }
+
+export async function getArtifacts() {
+    return await prismaClient.artifacts.findMany({
+        select: {
+            aname: true,
+            orig: true,
+            derpys: true,
+            icon: true,
+            slot:true
+        }
+    })
+}

@@ -168,3 +168,4 @@ export interface AscensionData {
     [key: string]: IClusterData[];
 }
 
+export const Artifact_Txt_Color = "#a34114"
