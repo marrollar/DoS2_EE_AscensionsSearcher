@@ -35,6 +35,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.9"
+          cache: "pip"
+
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        working-directory: ${{github.workspace}}
+
+      - name: Create database and icon files
+        run: python create_db.py --with-overwrite
+        working-directory: data
+
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -76,10 +92,6 @@ jobs:
 
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-      
-      - name: Create database and icon files
-        run: create_db.py --with-overwrite
-        working-directory: data
 
       - name: Build with Next.js
         env:
