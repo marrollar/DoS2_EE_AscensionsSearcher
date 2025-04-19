@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { getArtifacts } from "../db/queries"
 import ArtifactsBox from "./components/ArtifactsBox"
 
@@ -9,7 +10,11 @@ export default async function ArtifactsHome() {
             {
                 artifactsData.map((e) => {
                     return (
-                        <ArtifactsBox key={e.aname} name={e.aname} orig={e.orig} derpys={e.derpys} icon={e.icon} />
+                        <>
+                            <Suspense>
+                                <ArtifactsBox key={e.aname} name={e.aname} orig={e.orig} derpys={e.derpys} icon={e.icon} />
+                            </Suspense>
+                        </>
                     )
                 })
             }
