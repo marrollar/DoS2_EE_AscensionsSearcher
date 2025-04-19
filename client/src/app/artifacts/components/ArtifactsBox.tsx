@@ -34,7 +34,7 @@ export default function ArtifactsBox({
             <hr className="border-t border-base-300" />
             <div className="flex flex-row">
                 <Image
-                    src={`/artifact_icons/${icon}.png`}
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/artifact_icons/${icon}.png`}
                     alt="Protected Image"
                     width={100}
                     height={100}
