@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Header from "./components/Header";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import Footer from "./components/Footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,8 +30,13 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} antialiased`}>
         <NuqsAdapter>
-          <Header />
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <div className="flex-grow">
+              {children}
+            </div>
+            <Footer />
+          </div>
         </NuqsAdapter>
       </body>
     </html>

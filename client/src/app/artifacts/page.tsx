@@ -10,11 +10,11 @@ export default async function ArtifactsHome() {
             {
                 artifactsData.map((e) => {
                     return (
-                        <>
+                        <div key={e.aname}>
                             <Suspense>
-                                <ArtifactsBox key={e.aname} name={e.aname} orig={e.orig} derpys={e.derpys} icon={e.icon} />
+                                <ArtifactsBox name={e.aname} orig={e.orig} derpys={e.derpys} icon={e.icon} />
                             </Suspense>
-                        </>
+                        </div>
                     )
                 })
             }
