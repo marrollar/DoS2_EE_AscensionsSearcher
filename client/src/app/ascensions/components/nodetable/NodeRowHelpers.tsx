@@ -71,7 +71,6 @@ export function SubNodeRow({ subNodes, isFirst }: Readonly<{
     const orig_tokens = subNodes.original.split(keywords_regexp)
     const derpys_tokens = subNodes.derpys?.split(keywords_regexp)
 
-
     return (
         <>
             <td className={`w-[50%] px-2 py-1 ${isFirst ? "" : "border-t"} border-r border-gray-500 align-top ${!ogHasSearchString && !titleIsSearch ? "opacity-25" : ""}`}>
