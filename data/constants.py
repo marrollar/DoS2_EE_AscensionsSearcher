@@ -43,7 +43,7 @@ AMER_ICONS_LSX = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/GUI/AM
 
 # This file is found in the unpack of "EpipEncounters"
 # EPIPS_ARTIFACTS_FILE = "raw_files/Shared.lua"
-EPIP_ARTIFACTS_FILE = f"../unpacks/Epip/Mods/EpipEncounters_{EpipE_MODID}/Story/RawFiles/Lua/Utilities/Artifact/Shared.lua"
+# EPIP_ARTIFACTS_FILE = f"../unpacks/Epip/Mods/EpipEncounters_{EpipE_MODID}/Story/RawFiles/Lua/Utilities/Artifact/Shared.lua"
 
 # This file is found in the unpack of "Epic_Encounters_Core"
 EE_ROOT_TEMPLATES = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/RootTemplates/"
