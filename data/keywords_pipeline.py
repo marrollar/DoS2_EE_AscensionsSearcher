@@ -47,7 +47,7 @@ def parse_keyword_descriptions(cur, conn):
                 keyword = uuid.split(PREFIX)[1]
 
                 description = description.split(":", 1)[1]
-                if keyword == "Elementalist" or keyword == "Predator":
+                if keyword in ["Elementalist", "Predator", "Centurion", "Celestial", "Occultist"]:
                     description = \
                     description.split('<br><font color="cb9780">></font> <font color="ebc808"  >Reaction:</font>')[0]
                 keyword = re.sub(r"([a-z])([A-Z])", r"\1 \2", keyword)
