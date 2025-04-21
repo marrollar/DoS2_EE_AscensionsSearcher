@@ -25,6 +25,7 @@ from constants import (
     ORIGINAL_EE_LOCAL,
 )
 from icon_ripper import rip_icons
+from keywords_pipeline import parse_keyword_descriptions
 from parse_helpers import clean_bad_chars
 from sql import DB_NAME, ORM_DIR
 from tqdm import tqdm
@@ -39,7 +40,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--with-overwrite",
         help="Allows the file to automatically copy the final database over to the website and overwrite an existing "
-             "one there.",
+        "one there.",
         action="store_true",
     )
 
@@ -65,6 +66,9 @@ if __name__ == "__main__":
     artifacts = parse_artifacts_icons(artifacts)
     artifacts = parse_orig_artifact_descriptions(artifacts)
     parse_derpys_artifact_descriptions(cur, conn, artifacts)
+
+    """ Misc Processing """
+    parse_keyword_descriptions(cur, conn)
 
     conn.close()
 

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Header from "./components/Header";
-import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import Footer from "./components/Footer";
+import Header from "./components/Header";
+import KeyWordsContext from "./components/KeywordsContext";
+import "./globals.css";
+import { getKeywordDescriptions } from "./db/queries";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -18,11 +20,14 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const keywords_descriptions = await getKeywordDescriptions();
+
   return (
     <html lang="en">
       <head>
@@ -33,7 +38,9 @@ export default function RootLayout({
           <div className="min-h-screen flex flex-col">
             <Header />
             <div className="flex-grow">
-              {children}
+              <KeyWordsContext kw_descs={keywords_descriptions}>
+                {children}
+              </KeyWordsContext>
             </div>
             <Footer />
           </div>

@@ -68,6 +68,7 @@ EE_KEY_WORDS = [
     "Paucity",
     "Predator",
     "Violent Strikes",
+    "Violent Strike",
     "Occultist",
     "Vitality Void",
     "Withered",
@@ -81,6 +82,9 @@ EE_KEY_WORDS = [
     "Prosperity",
     "Purity",
     "Defiance",
+    "Voracity",
+    "Presence",
+    "Volatile Armor"
 ]
 
 AMER_LOCAL_PREFIXES = [

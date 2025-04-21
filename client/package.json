@@ -18,6 +18,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-responsive": "^10.0.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
     "use-debounce": "^10.0.4"
   },
   "devDependencies": {

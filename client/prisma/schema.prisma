@@ -37,3 +37,10 @@ model artifacts {
   icon   String? @default("")
   slot   String? @default("")
 }
+
+model keywords {
+  href    String  @id
+  keyword String
+  orig    String
+  derpys  String?
+}

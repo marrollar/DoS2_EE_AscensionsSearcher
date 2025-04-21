@@ -60,7 +60,17 @@ export async function getArtifacts() {
             orig: true,
             derpys: true,
             icon: true,
-            slot:true
+            slot: true
+        }
+    })
+}
+
+export async function getKeywordDescriptions() {
+    return await prismaClient.keywords.findMany({
+        select: {
+            keyword:true,
+            orig:true,
+            derpys:true
         }
     })
 }

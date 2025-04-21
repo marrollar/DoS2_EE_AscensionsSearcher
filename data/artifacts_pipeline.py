@@ -177,10 +177,10 @@ def parse_derpys_artifact_descriptions(cur, conn, artifacts):
         except KeyError:
             derpys = ""
 
-        for keyword in EE_KEY_WORDS:
-            orig = orig.replace(keyword, HTML_COLOR_KEYWORD(keyword))
-        for keyword in EE_KEY_WORDS:
-            derpys = derpys.replace(keyword, HTML_COLOR_KEYWORD(keyword))
+        # for keyword in EE_KEY_WORDS:
+        #     orig = orig.replace(keyword, HTML_COLOR_KEYWORD(keyword))
+        # for keyword in EE_KEY_WORDS:
+        #     derpys = derpys.replace(keyword, HTML_COLOR_KEYWORD(keyword))
 
         INSERT_TABLE_ARTIFACTS(
             cur,

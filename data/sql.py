@@ -203,3 +203,34 @@ def INSERT_TABLE_ARTIFACTS(cursor, conn, *args):
         VALUES ({("?," * len(kw)).rstrip(",")})
         """, tuple(kw.values()))
     conn.commit()
+
+
+class t_KEYWORDS(metaclass=_MetaTable):
+    _name = "keywords"
+    href = _sql_type("href", "TEXT", "NOT NULL")
+    keyword = _sql_type("keyword", "TEXT", "NOT NULL")
+    orig = _sql_type("orig", "TEXT", "NOT NULL")
+    derpys = _sql_type("derpys", "TEXT")
+
+def CREATE_TABLE_KEYWORDS(cursor, conn):
+    cursor.execute(f"DROP TABLE IF EXISTS {t_KEYWORDS._name}")
+    cursor.execute(f"""
+            CREATE TABLE {t_KEYWORDS._name} (
+                {t_KEYWORDS},
+
+                PRIMARY KEY({t_KEYWORDS.href})
+            )
+        """)
+    conn.commit()
+
+
+def INSERT_TABLE_KEYWORDS(cursor, conn, *args):
+    kw = {}
+    for arg in args:
+        kw[arg[0]] = arg[1].strip() if isinstance(arg[1], str) else arg[1]
+
+    cursor.execute(f"""
+        INSERT OR IGNORE INTO {t_KEYWORDS._name} ({",".join([str(k) for k in kw.keys()])})
+        VALUES ({("?," * len(kw)).rstrip(",")})
+        """, tuple(kw.values()))
+    conn.commit()

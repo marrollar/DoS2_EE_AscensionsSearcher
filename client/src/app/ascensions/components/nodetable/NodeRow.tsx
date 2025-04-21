@@ -34,7 +34,7 @@ export default function NodeRow({ subNodes, implicit }:
     }
 
     return (
-        <div className="overflow-x-auto px-4">
+        <div className="px-4">
             <table className="w-[100%] table-fixed border-collapse">
                 <tbody>
                     <tr className={mainNID % 2 == 0 ? "bg-base-300" : "bg-base-100"}>

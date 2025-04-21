@@ -52,6 +52,10 @@ class CoreHelper:
         for old, new in replace_strs:
             desc = desc.replace(old, new)
 
+        for keyword in EE_KEY_WORDS:
+            desc = desc.replace(f'<font color="ebc808"  >{keyword}</font>', keyword)
+            desc = desc.replace(f'<font color="ebc808">{keyword}</font>', keyword)
+
         return desc.rstrip(",. ")
 
     @staticmethod
@@ -183,8 +187,8 @@ class DerpysReplacementsHelper:
 
 
 def format_derpys_desc(desc):
-    for keyword in EE_KEY_WORDS:
-        desc = desc.replace(keyword, HTML_COLOR_KEYWORD(keyword))
+    # for keyword in EE_KEY_WORDS:
+    #     desc = desc.replace(keyword, HTML_COLOR_KEYWORD(keyword))
     desc = desc.replace("<br><br>", f'<br>{HTML_GT} ')
     desc = f"{HTML_GT} {desc}"
 
