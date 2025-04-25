@@ -9,7 +9,9 @@ export default function SearchBar() {
     const handleSearchChange = useDebouncedCallback((e) => {
         const searchStr = e.target.value
         setSearchQuery(searchStr)
-    }, 100)
+    }, 300)
+
+    console.log(searchQuery)
 
     return (
         <div className="flex">

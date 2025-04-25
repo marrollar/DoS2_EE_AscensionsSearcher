@@ -1,3 +1,4 @@
+
 "use client"
 
 import AspectBox from "@/app/ascensions/components/aspectbox/AspectBox";

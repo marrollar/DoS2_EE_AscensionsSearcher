@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import { getArtifacts } from "../db/queries"
 import ArtifactsBox from "./components/ArtifactsBox"
+import ArtifactsBoxSkeleton from "../skeletons/ArtifactsBoxSkeleton"
 
 export default async function ArtifactsHome() {
     const artifactsData = await getArtifacts()
@@ -11,7 +12,7 @@ export default async function ArtifactsHome() {
                 artifactsData.map((e) => {
                     return (
                         <div key={e.aname}>
-                            <Suspense>
+                            <Suspense fallback={<ArtifactsBoxSkeleton/>}>
                                 <ArtifactsBox name={e.aname} orig={e.orig} derpys={e.derpys} icon={e.icon} />
                             </Suspense>
                         </div>

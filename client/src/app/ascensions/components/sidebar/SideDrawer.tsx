@@ -2,6 +2,8 @@ import { AscensionData } from "@/app/types";
 import SideBarAscensionsContent from "./SideBarAscensionsContent";
 import SideBar from "./SideBar";
 import SideDrawerToggleButton from "./SideDrawerToggleButton";
+import { Suspense } from "react";
+import SideBarAscensionsContentSkeleton from "@/app/skeletons/SideBarAscensionsContentSkeleton";
 
 export default function SideDrawer({ ascensionsData }: Readonly<{ ascensionsData: AscensionData }>) {
     return (
@@ -20,7 +22,9 @@ export default function SideDrawer({ ascensionsData }: Readonly<{ ascensionsData
                 <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
                 {/* Sidebar content here */}
                 <ul className="menu bg-base-200 text-base-content min-h-full w-50 p-4">
-                    <SideBarAscensionsContent ascensionsData={ascensionsData} />
+                    <Suspense fallback={<SideBarAscensionsContentSkeleton/>}>
+                        <SideBarAscensionsContent ascensionsData={ascensionsData} />
+                    </Suspense>
                 </ul>
             </div>
         </div>

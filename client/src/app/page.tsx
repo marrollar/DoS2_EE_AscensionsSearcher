@@ -1,7 +1,6 @@
 
 import { getDerpysByCluster, getDescription_By_ClusterAndAttr, getOriginal_MainNodes_By_Cluster, getOriginal_SubNodes_By_Cluster } from "@/app/db/queries";
 import { AscensionData, Aspects, CLUSTER_ORDER, IClusterData, IMainNode, stringToAspect } from "@/app/types";
-import { Suspense } from "react";
 import AscensionsClientPage from "./ascensions/client-page";
 import SideDrawer from "./ascensions/components/sidebar/SideDrawer";
 
@@ -123,10 +122,8 @@ export default async function AscensionsHome() {
 
     return (
         <div className="flex flex-col max-w-[1050px] mx-auto my-2 px-1 py-1 rounded-tr rounded-br bg-base-100 border border-base-300">
-            <Suspense>
-                <SideDrawer ascensionsData={ascensionsData} />
-                <AscensionsClientPage ascensionsData={ascensionsData} />
-            </Suspense>
+            <SideDrawer ascensionsData={ascensionsData} />
+            <AscensionsClientPage ascensionsData={ascensionsData} />
         </div>
 
     )

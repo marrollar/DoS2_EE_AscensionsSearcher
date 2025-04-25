@@ -1,10 +1,9 @@
-"use client"
-
 import { IClusterData } from "@/app/types";
-import { useContext } from "react";
+import { Suspense, useContext } from "react";
 import { AspectContext } from "../../client-page";
 import AspectHeader from "./AspectHeader";
 import ClusterBox from "../clusterbox/ClusterBox";
+import ClusterBoxSkeleton from "@/app/skeletons/ClusterBoxSkeleton";
 
 export default function AspectBox({
     clusters,
@@ -18,9 +17,10 @@ export default function AspectBox({
                 {
                     clusters.map((c) => (
                         <div key={aspect + c.name}>
-                            <ClusterBox cluster={c} />
+                            <Suspense fallback={<ClusterBoxSkeleton />}>
+                                <ClusterBox cluster={c} />
+                            </Suspense>
                         </div>
-
                     ))
                 }
             </AspectHeader>

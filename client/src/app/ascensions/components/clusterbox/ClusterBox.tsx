@@ -57,7 +57,7 @@ export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData
     const showCluster = titleIsSearch || subNodesWithSearchStr.length > 0 || searchQuery === ""
 
     return (
-        <div id={cluster.id} className={`bg-[#202020] mt-4 px-2 pb-3 scroll-m-38 ${showCluster ? "" : "hidden"}`}>
+        <div id={cluster.id} className={`bg-[#202020] mt-4 px-2 pb-3 ${showCluster ? "" : "hidden"}`}>
             <ClusterTitle clusterName={cluster.name} />
             <ClusterFlavor desc={clusterMainDescription} />
             <ClusterRequirementRewards requirements={reqRew_parts[0]} rewards={reqRew_parts[1]} />
