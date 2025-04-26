@@ -11,8 +11,6 @@ export default function SearchBar() {
         setSearchQuery(searchStr)
     }, 300)
 
-    console.log(searchQuery)
-
     return (
         <div className="flex">
             <input
