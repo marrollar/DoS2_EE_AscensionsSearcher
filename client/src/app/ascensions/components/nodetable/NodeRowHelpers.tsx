@@ -11,15 +11,36 @@ export function MainNodeDivider({ name, __html }: Readonly<{ name: string, __htm
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
 
     const clusterCtx = useContext(ClusterCtx);
+    const keywordsCtx = useContext(KeyWordsCtx)
 
     const hasSearchString = cheerio.load(__html).text().toLowerCase().includes(searchQuery)
     const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchQuery)
+
+    const all_keywords = new Set(Object.keys(keywordsCtx))
+    all_keywords.add("Violent Strike")
+    all_keywords.add("Withered")
+    all_keywords.delete("Wither")
+    const keywords_regexp = new RegExp(`(${[...all_keywords].join('|')})`, 'gi')
+
+    const tokens = __html.split(keywords_regexp)
+    console.log(tokens)
 
     return (
         <td className="w-1/4 px-4 py-2 border border-gray-500 text-center align-top">
             {name}
             <hr className="border-t border-gray-300/25" />
-            <div className={`${!hasSearchString && !titleIsSearch ? "opacity-25" : ""}`} dangerouslySetInnerHTML={{ __html: __html }} />
+            <div className={`${!hasSearchString && !titleIsSearch ? "opacity-25" : ""}`}>
+                {
+                    tokens.map((e, index) => {
+                        const isKeyword = all_keywords.has(e)
+                        return isKeyword ? (
+                            <KeyWord key={index} keyword={e} />
+                        ) : (
+                            <span key={index} dangerouslySetInnerHTML={{ __html: e }} />
+                        )
+                    })
+                }
+            </div>
         </td>
     )
 }
