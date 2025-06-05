@@ -39,6 +39,7 @@ const FuseOptions = {
 
 export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData }>) {
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
+    const lowerQuery = searchQuery.toLowerCase()
     const aspect = useContext(AspectContext)
 
     const clusterMainDescription = cluster.description
@@ -48,13 +49,13 @@ export default function ClusterBox({ cluster }: Readonly<{ cluster: IClusterData
     clusterReqRew = clusterReqRew.replace("Requires:", "Required:").replace("Completion grants:", "Completion:").replaceAll("<br>", "")
     const reqRew_parts = clusterReqRew.split(".")
 
-    const titleIsSearch = cluster.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const titleIsSearch = cluster.name.toLowerCase().includes(lowerQuery)
 
     const flattenedSubNodes = Object.values(clusterNodes)
     const fuse = new Fuse(flattenedSubNodes, FuseOptions);
-    const subNodesWithSearchStr = fuse.search(searchQuery)
+    const subNodesWithSearchStr = fuse.search(lowerQuery)
 
-    const showCluster = titleIsSearch || subNodesWithSearchStr.length > 0 || searchQuery === ""
+    const showCluster = titleIsSearch || subNodesWithSearchStr.length > 0 || lowerQuery === ""
 
     return (
         <div id={cluster.id} className={`bg-[#202020] mt-4 px-2 pb-3 ${showCluster ? "" : "hidden"}`}>

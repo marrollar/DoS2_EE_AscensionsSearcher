@@ -18,13 +18,14 @@ export default function ArtifactsBox({
     icon: string | null
 }>) {
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
+    const lowerQuery = searchQuery.toLowerCase()
 
     derpys = derpys ? derpys : ""
 
-    const thereIsSearch = searchQuery === "" ? false : true
-    const origHasSearch = cheerio.load(orig).text().toLowerCase().includes(searchQuery.toLowerCase())
-    const derpysHasSearch = cheerio.load(derpys).text().toLowerCase().includes(searchQuery.toLowerCase())
-    const titleIsSearch = name.toLowerCase().includes(searchQuery.toLowerCase())
+    const thereIsSearch = lowerQuery === "" ? false : true
+    const origHasSearch = cheerio.load(orig).text().toLowerCase().includes(lowerQuery)
+    const derpysHasSearch = cheerio.load(derpys).text().toLowerCase().includes(lowerQuery)
+    const titleIsSearch = name.toLowerCase().includes(lowerQuery)
 
     const show = !thereIsSearch || origHasSearch || derpysHasSearch || titleIsSearch
 

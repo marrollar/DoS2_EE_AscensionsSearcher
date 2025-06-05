@@ -9,12 +9,13 @@ import KeyWord from "@/app/components/Keyword";
 export function MainNodeDivider({ name, __html }: Readonly<{ name: string, __html: string }>) {
 
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
+    const lowerQuery = searchQuery.toLowerCase()
 
     const clusterCtx = useContext(ClusterCtx);
     const keywordsCtx = useContext(KeyWordsCtx)
 
-    const hasSearchString = cheerio.load(__html).text().toLowerCase().includes(searchQuery)
-    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchQuery)
+    const hasSearchString = cheerio.load(__html).text().toLowerCase().includes(lowerQuery)
+    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(lowerQuery)
 
     const all_keywords = new Set(Object.keys(keywordsCtx))
     all_keywords.add("Violent Strike")
@@ -67,21 +68,22 @@ export function SubNodeRow({ subNodes, isFirst }: Readonly<{
 }>) {
 
     const [searchQuery] = useQueryState("query", { defaultValue: "" })
+    const lowerQuery = searchQuery.toLowerCase()
 
     const clusterCtx = useContext(ClusterCtx);
     const keywordsCtx = useContext(KeyWordsCtx)
 
     const origCheerio = cheerio.load(subNodes.original)
-    const ogHasSearchString = origCheerio.text().toLowerCase().includes(searchQuery)
+    const ogHasSearchString = origCheerio.text().toLowerCase().includes(lowerQuery)
 
     let derpysCheerio = null
     let derpysHasSearchString = false
     if (subNodes.derpys) {
         derpysCheerio = cheerio.load(subNodes.derpys)
-        derpysHasSearchString = derpysCheerio.text().toLowerCase().includes(searchQuery)
+        derpysHasSearchString = derpysCheerio.text().toLowerCase().includes(lowerQuery)
     }
 
-    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(searchQuery)
+    const titleIsSearch = clusterCtx.clusterName.toLowerCase().includes(lowerQuery)
 
     const all_keywords = new Set(Object.keys(keywordsCtx))
     all_keywords.add("Violent Strike")
