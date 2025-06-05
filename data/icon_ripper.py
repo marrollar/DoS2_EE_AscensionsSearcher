@@ -76,7 +76,9 @@ def rip_icons(DDS, LSX, move=False):
     if move:
         if os.path.exists(os.path.join(WEBSITE_PUBLIC, "artifact_icons")):
             tqdm.write(
-                "\033[93m[WARNING] Please remove existing icons folder in the web server before running the script.\033[0m"
+                "\033[93m[WARNING] "
+                "If the web server has a pre-existing 'icons' folder but has no files inside it, "
+                "please remove said folder before running the script.\033[0m"
             )
         else:
             shutil.move("artifact_icons", os.path.join(WEBSITE_PUBLIC, "artifact_icons"))

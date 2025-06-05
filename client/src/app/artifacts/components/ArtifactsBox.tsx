@@ -6,6 +6,8 @@ import ArtifactsTitle from "./ArtifactsTitle"
 import { useQueryState } from "nuqs"
 import * as cheerio from "cheerio";
 
+// TODO: Considering adding the equipment slot type that corresponds to the artifact. This data is already stored in the database file, it is just never used anywhere in the website code.
+
 export default function ArtifactsBox({
     name,
     orig,

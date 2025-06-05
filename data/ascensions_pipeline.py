@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import bs4
 from bs4 import BeautifulSoup
@@ -86,6 +87,15 @@ def parse_for_descriptions(cur, conn, TEMP_INTERMEDIATE_TABLES=True):
 
                 if "Desc" in cluster_attr:
                     node = ""
+
+                if "activate Finesse's AP recovery effect" in content_desc:
+                    try:
+                        prefix_loc = content_desc.index("Aerotheurge")
+                        content_desc = content_desc[:prefix_loc] + "Spellcaster's Finesse: <br>" + content_desc[prefix_loc:]
+                    except ValueError:
+                        tqdm.write(
+                            f"\033[93m[WARNING] {uuid}: 'Aerotheurge' substring not found when attempting to determine if node description fits a Spellcaster's Finesse node. Probably just an extraneous node description.\033[0m"
+                        )
 
                 # print(cluster, "\n", ascension_attr, ascension_node, "\n\n")
                 INSERT_TABLE_CORE(
@@ -322,7 +332,7 @@ def rectify_edge_cases(cur, conn):
         FROM {t_DERPYS._name} WHERE {t_DERPYS.is_addition}=1
     """).fetchall()
 
-    # 2. Get every entry in the 'nodes' table that corresponds is the same (cluster, node) pair
+    # 2. Get every entry in the 'nodes' table that corresponds to the same (cluster, node)
     for cluster, node, desc in derpy_additions:
         nodes_entry = cur.execute(f"""
             SELECT
@@ -399,11 +409,21 @@ def rectify_edge_cases(cur, conn):
                         node_data[4],
                     )
                     derpys_local_text = CoreHelper.sanitize_description(tag.text)
+                    if "activate Finesse's AP recovery effect" in derpys_local_text:
+                        try:
+                            prefix_loc = derpys_local_text.index("Aerotheurge")
+                            derpys_local_text = derpys_local_text[:prefix_loc] + "Spellcaster's Finesse: <br>" + derpys_local_text[prefix_loc:]
+                        except ValueError:
+                            tqdm.write(
+                                f"\033"
+                                f"[93m[WARNING] {content_id}: "
+                                f"'Aerotheurge' substring not found when attempting to determine if Derpy's node "
+                                f"description fits a Spellcaster's Finesse node. Description contains possible typo."
+                                f"\033[0m"
+                            )
 
                     raw_desc = BeautifulSoup(desc, "html.parser").get_text()
-                    raw_derpys_local_text = BeautifulSoup(
-                        derpys_local_text, "html.parser"
-                    ).get_text()
+                    raw_derpys_local_text = BeautifulSoup(derpys_local_text, "html.parser").get_text()
 
                     if not descs_are_same(
                             raw_desc, raw_derpys_local_text, threshold=0.95
