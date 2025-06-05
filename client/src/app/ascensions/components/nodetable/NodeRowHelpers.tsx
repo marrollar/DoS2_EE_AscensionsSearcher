@@ -24,7 +24,6 @@ export function MainNodeDivider({ name, __html }: Readonly<{ name: string, __htm
     const keywords_regexp = new RegExp(`(${[...all_keywords].join('|')})`, 'gi')
 
     const tokens = __html.split(keywords_regexp)
-    console.log(tokens)
 
     return (
         <td className="w-1/4 px-4 py-2 border border-gray-500 text-center align-top">
@@ -93,6 +92,26 @@ export function SubNodeRow({ subNodes, isFirst }: Readonly<{
 
     const orig_tokens = subNodes.original.split(keywords_regexp)
     const derpys_tokens = subNodes.derpys?.split(keywords_regexp)
+
+    // TODO: Maybe try to optimize this somehow? 
+    // Technically there is only the case that the 0th index of the tokens is relevant, so this is way overengineered...
+    for (let i = 0; i < orig_tokens.length; i++) {
+        if (orig_tokens[i].includes("activate Finesse's AP recovery effect")) {
+            const desc = orig_tokens[i]
+            const prefixLoc = desc.indexOf("Aerotheurge")
+            orig_tokens[i] = desc.slice(0, prefixLoc) + "Spellcaster's Finesse: <br>" + desc.slice(prefixLoc)
+        }
+    }
+
+    if (derpys_tokens) {
+        for (let i = 0; i < derpys_tokens.length; i++) {
+            if (derpys_tokens[i].includes("activate Finesse's AP recovery effect")) {
+                const desc = derpys_tokens[i]
+                const prefixLoc = desc.indexOf("Aerotheurge")
+                derpys_tokens[i] = desc.slice(0, prefixLoc) + "Spellcaster's Finesse: <br>" + desc.slice(prefixLoc)
+            }
+        }
+    }
 
     return (
         <>
