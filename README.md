@@ -37,7 +37,7 @@ but as far as I'm aware, no specific feature to those specific versions should b
 <img src="images/unpack_derpys_pt1.png">
 
 3. Go to the `LSX/LSB/LSF/LSJ Tools` tab and note the `Batch Convert` area near the bottom. <br>
-Set `Input Directory` to `{repo_path}unpacks/core` and `Output Directory` to that exact same path. <br>
+Set `Input Directory` to `{repo_path}/unpacks/core` and `Output Directory` to that exact same path. <br>
 Change `Input Format` to `LSB (binary) file` and `Output Format` to `LSX (XML) file`. <br>
 Click the `Convert` button and wait for it to finish. <br>
 
