@@ -176,6 +176,7 @@ class t_ARTIFACTS(metaclass=_MetaTable):
     href = _sql_type("href", "TEXT", "NOT NULL")
     aname = _sql_type("aname", "TEXT", "NOT NULL")
     orig = _sql_type("orig", "TEXT", "NOT NULL")
+    epipgameplay= _sql_type("epipgameplay", "TEXT", "NOT NULL")
     derpys = _sql_type("derpys", "TEXT", 'DEFAULT ""')
     icon = _sql_type("icon", "TEXT", 'DEFAULT ""')
     slot = _sql_type("slot", "TEXT", 'DEFAULT ""')

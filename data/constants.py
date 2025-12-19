@@ -2,6 +2,7 @@
 
 EE_MODID = "63bb9b65-2964-4c10-be5b-55a63ec02fa0"
 EpipE_MODID = "7d32cb52-1cfd-4526-9b84-db4867bf9356"
+EpipGameplay_MODID = "6fd5667e-fb05-43ad-b3a9-764b63b21497"
 
 # This file is found in the unpack of "Epic_Encounters_Core".
 # Note that the copy of it in the repo has been renamed, but the contents are not altered.
@@ -50,6 +51,9 @@ EE_ROOT_TEMPLATES = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/Roo
 
 # This file is found in the unpack of Epic_Encounters_Core
 EE_ARTIFACTS_DESC_FILE = f"../unpacks/Core/Public/Epic_Encounters_Core_{EE_MODID}/Localization/Stats/Status_CONSUME_DisplayName.lsx"
+
+ORIGINAL_PIPSGAMEPLAY_LOCAL = f"../unpacks/Pip's/Mods/EpipGameplay_{EpipGameplay_MODID}/Localization/English/english.xml"
+MODIFIED_PIPSGAMEPLAY_LOCAL = "raw_files/MODIFIED_PipsGameplay_english.xml"
 
 # This file is found in the unpack of "Epic_Encounters_Core"
 # The path after unpack is:

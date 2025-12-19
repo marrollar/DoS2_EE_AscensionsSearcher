@@ -9,6 +9,7 @@ from constants import (
     EPIP_ARTIFACTS_FILE,
     HTML_GT,
     ORIGINAL_DERPYS_LOCAL, EE_KEY_WORDS, HTML_COLOR_KEYWORD,
+    MODIFIED_PIPSGAMEPLAY_LOCAL
 )
 from sql import CREATE_TABLE_ARTIFACTS, INSERT_TABLE_ARTIFACTS, t_ARTIFACTS
 from tqdm import tqdm
@@ -154,6 +155,18 @@ def parse_orig_artifact_descriptions(artifacts):
     return artifacts
 
 
+def parse_epipgameplay_artifact_descriptions(cur, conn, artifacts):
+    with open(MODIFIED_PIPSGAMEPLAY_LOCAL, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f.read(), "xml")
+
+        for content_node in tqdm(soup.find_all("content"), desc="Parsing for EpipGameplay artifact changes"):
+            href = content_node.get("contentuid")
+            desc = sanitize_description(content_node.get_text())
+
+            for k, v in artifacts.items():
+                if href == v["href"]:
+                    artifacts[k]["epipgameplay"] = desc
+
 def parse_derpys_artifact_descriptions(cur, conn, artifacts):
     with open(ORIGINAL_DERPYS_LOCAL, "r", encoding="utf-8") as f:
         soup = BeautifulSoup(f.read(), "xml")
@@ -173,9 +186,16 @@ def parse_derpys_artifact_descriptions(cur, conn, artifacts):
         href = v["href"]
         orig = v["orig"]
         try:
+            epipgameplay = v["epipgameplay"]
+        except KeyError:
+            epipgameplay = ""
+        try:
             derpys = v["derpys"]
         except KeyError:
-            derpys = ""
+            if len(epipgameplay) != 0:
+                derpys = epipgameplay
+            else:
+                derpys = ""
 
         # for keyword in EE_KEY_WORDS:
         #     orig = orig.replace(keyword, HTML_COLOR_KEYWORD(keyword))
@@ -188,6 +208,7 @@ def parse_derpys_artifact_descriptions(cur, conn, artifacts):
             (t_ARTIFACTS.href, href),
             (t_ARTIFACTS.aname, name),
             (t_ARTIFACTS.orig, orig),
+            (t_ARTIFACTS.epipgameplay, epipgameplay),
             (t_ARTIFACTS.derpys, derpys),
             (t_ARTIFACTS.icon, icon),
             (t_ARTIFACTS.slot, slot)

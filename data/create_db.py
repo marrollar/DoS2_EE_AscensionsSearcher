@@ -8,6 +8,7 @@ from artifacts_pipeline import (
     parse_artifacts_icons,
     parse_derpys_artifact_descriptions,
     parse_orig_artifact_descriptions,
+    parse_epipgameplay_artifact_descriptions
 )
 from ascensions_pipeline import (
     create_final_table,
@@ -23,6 +24,8 @@ from constants import (
     MODIFIED_EE_LOCAL,
     ORIGINAL_DERPYS_LOCAL,
     ORIGINAL_EE_LOCAL,
+    ORIGINAL_PIPSGAMEPLAY_LOCAL,
+    MODIFIED_PIPSGAMEPLAY_LOCAL
 )
 from icon_ripper import rip_icons
 from keywords_pipeline import parse_keyword_descriptions
@@ -59,12 +62,14 @@ if __name__ == "__main__":
     rectify_edge_cases(cur, conn)
 
     """ Artifacts Processing """
+    clean_bad_chars(ORIGINAL_PIPSGAMEPLAY_LOCAL, MODIFIED_PIPSGAMEPLAY_LOCAL)
 
     rip_icons(AMER_ICONS_DDS, AMER_ICONS_LSX, move=True)
 
     artifacts = parse_artifacts_geartype(cur, conn)
     artifacts = parse_artifacts_icons(artifacts)
     artifacts = parse_orig_artifact_descriptions(artifacts)
+    parse_epipgameplay_artifact_descriptions(cur, conn, artifacts)
     parse_derpys_artifact_descriptions(cur, conn, artifacts)
 
     """ Misc Processing """
