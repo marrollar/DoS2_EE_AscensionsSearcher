@@ -15,7 +15,7 @@ from ascensions_pipeline import (
     parse_derpys_changes,
     parse_for_corrections,
     parse_for_descriptions,
-    rectify_edge_cases,
+    rectify_edge_cases, fix_demilich,
 )
 from constants import (
     AMER_ICONS_DDS,
@@ -60,6 +60,7 @@ if __name__ == "__main__":
     create_final_table(cur, conn)
     parse_derpys_changes(cur, conn)
     rectify_edge_cases(cur, conn)
+    fix_demilich(cur, conn)
 
     """ Artifacts Processing """
     clean_bad_chars(ORIGINAL_PIPSGAMEPLAY_LOCAL, MODIFIED_PIPSGAMEPLAY_LOCAL)

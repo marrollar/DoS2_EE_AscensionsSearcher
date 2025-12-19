@@ -442,3 +442,41 @@ def rectify_edge_cases(cur, conn):
                             derpys_local_text,
                         ))
                         conn.commit()
+
+def fix_demilich(cur, conn):
+    """
+    For some reason, Demilich does not come with a Node_5.0, but it atleast follows the standard of all the other clusters by having a Node_5.
+    As such, we will simply use that description in placement of a Node_5.0 entry.
+    """
+    demilich_5 = cur.execute(f"""
+        SELECT
+            *
+        FROM {t_NODES._name}
+        WHERE
+            {t_NODES.cluster}=? AND
+            {t_NODES.attr}=?
+    """, (
+        "Demilich",
+        "Node 5"
+    )).fetchone()
+
+    cur.execute(f"""
+        INSERT INTO {t_NODES._name} (
+            {t_NODES.href},
+            {t_NODES.aspect},
+            {t_NODES.cluster},
+            {t_NODES.attr},
+            {t_NODES.description},
+            {t_NODES.is_subnode},
+            {t_NODES.has_implicit}
+        ) VALUES ({("?," * len(demilich_5)).rstrip(",")})
+    """,
+        (demilich_5[0],
+         demilich_5[1],
+         demilich_5[2],
+         "Node 5.0",
+         demilich_5[4],
+         1,
+         demilich_5[6])
+    )
+    conn.commit()
