@@ -23,11 +23,6 @@ export default function SideBarAscensionsContent({ ascensionsData }: Readonly<{ 
             "Tier 2": [],
             "Tier 3": []
         },
-        Life: {
-            "Tier 1": [],
-            "Tier 2": [],
-            "Tier 3": []
-        },
         Entropy: {
             "Tier 1": [],
             "Tier 2": [],
@@ -38,7 +33,13 @@ export default function SideBarAscensionsContent({ ascensionsData }: Readonly<{ 
             "Tier 2": [],
             "Tier 3": []
         },
+
         Inertia: {
+            "Tier 1": [],
+            "Tier 2": [],
+            "Tier 3": []
+        },
+        Life: {
             "Tier 1": [],
             "Tier 2": [],
             "Tier 3": []
