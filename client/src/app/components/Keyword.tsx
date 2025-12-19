@@ -9,11 +9,13 @@ export default function KeyWord({
     keyword: string
 }>) {
 
+    let search_kw_variant = keyword
+
     if (keyword === "Withered") {
-        keyword = "Wither"
+        search_kw_variant = "Wither"
     }
     if (keyword === "Violent Strike") {
-        keyword = "Violent Strikes"
+        search_kw_variant = "Violent Strikes"
     }
 
     const keywordsCtx = useContext(KeyWordsCtx)
@@ -26,8 +28,8 @@ export default function KeyWord({
         setIsOpen(false)
     }
 
-    const orig_desc = keywordsCtx[keyword].orig
-    const derpys_desc = keywordsCtx[keyword].derpys
+    const orig_desc = keywordsCtx[search_kw_variant].orig
+    const derpys_desc = keywordsCtx[search_kw_variant].derpys
 
     return (
         <span
